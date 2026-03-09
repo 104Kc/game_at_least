@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -19,12 +20,12 @@ export default function Home() {
           className="mb-8 drop-shadow-lg"
           priority
         />
-        <p className="text-xl mb-8 drop-shadow-md">
-          Welcome to the game!
-        </p>
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          Start Game
-        </button>
+        {/* welcome message removed as requested */}
+        <Link href="/Registration_and_login_page/application">
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded text-lg transition transform hover:scale-105">
+            Start Game
+          </button>
+        </Link>
       </main>
     </div>
   );
