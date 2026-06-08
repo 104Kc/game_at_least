@@ -21,7 +21,7 @@ export default function Home() {
           priority
         />
         {/* welcome message removed as requested */}
-        <Link href="/Registration_and_login_page/application">
+        <Link href="/Registration_and_login_page/Login">
           <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded text-lg transition transform hover:scale-105">
             Start Game
           </button>
