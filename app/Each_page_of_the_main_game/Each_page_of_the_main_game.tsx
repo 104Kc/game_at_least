@@ -1,7 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState, type ComponentType } from 'react';
+import MiniGames1 from '../Mini_games_1/Mini_games_1';
+import MiniGames2 from '../Mini_games_2/Mini_games_2';
+import MiniGames3 from '../Mini_games_3/Mini_games_3';
+import MiniGames4 from '../Mini_games_4/Mini_games_4';
+import MiniGames5 from '../Mini_games_5/Mini_games_5';
 
 const DIALOGS = [
   'สวัสดีทุกคนที่มีความเครียด เกมนี้มีแนวคิดเป็นเกมเนื้อเรื่องที่จะช่วยให้ทุกคนคลายเครียด',
@@ -9,7 +13,27 @@ const DIALOGS = [
   'เอาละ ตอนนี้มาตั้งชื่อตัวละครของคุณกัน',
 ];
 
-type Screen = 'dialog' | 'name' | 'done';
+const STORY_TEXT = '........................เนื้อเรื่องของเกมจะอยู่ตรงนี้........................';
+const STORY_PATH_TEXTS = {
+  forest: '..................เนื้อเรื่องทางเลือกที่ 1  .....................',
+  mountain: '...................เนื้อเรื่องทางเลือกที่ 2  ...................',
+};
+const STORY_PATH_CONTINUE_TEXTS = {
+  forest: 'เนื้อเรืองต่อจากทางเลือก 1: ..................เนื้อเรื่องต่อจากทางเลือก 1 .....................',
+  mountain: 'เนื้อเรืองต่อจากทางเลือก 2: ...................เนื้อเรื่องต่อจากทางเลือก 2 ...................',
+};
+const STORY_PATH_CONTINUE_2_TEXTS = {
+  forest: 'เนื้อเรื่องส่วนที่ 2 ทางเลือก 1: .................เนื้อเรื่องชั้นที่ 2 ของทางเลือก 1..................',
+  mountain: 'เนื้อเรื่องส่วนที่ 2 ทางเลือก 2: .................เนื้อเรื่องชั้นที่ 2 ของทางเลือก 2..................',
+};
+const SECOND_CHOICE_RESULT_TEXTS = {
+  first: 'ผลลัพธ์ของทางเลือกที่ 1.1: ......................เนื้อเรื่องหลังทางเลือกที่ 1.1......................',
+  second: 'ผลลัพธ์ของทางเลือกที่ 2.1: ......................เนื้อเรื่องหลังทางเลือกที่ 2.1......................',
+};
+const MINI_GAMES = ['Mini_games_1', 'Mini_games_2', 'Mini_games_3', 'Mini_games_4', 'Mini_games_5'] as const;
+type MiniGameKey = (typeof MINI_GAMES)[number];
+
+type Screen = 'dialog' | 'name' | 'done' | 'story' | 'choice' | 'story-path' | 'story-path-continue' | 'story-path-continue-2' | 'story-path-continue-choice' | 'story-path-continue-choice-result';
 
 export default function MainGamePage() {
   const [screen, setScreen] = useState<Screen>('dialog');
@@ -18,6 +42,18 @@ export default function MainGamePage() {
   const [isTyping, setIsTyping] = useState(false);
   const [playerName, setPlayerName] = useState('');
   const [inputName, setInputName] = useState('');
+  const [selectedMiniGame, setSelectedMiniGame] = useState<MiniGameKey | null>(null);
+  const [hasFinishedMiniGame, setHasFinishedMiniGame] = useState(false);
+  const [selectedPath, setSelectedPath] = useState<'forest' | 'mountain' | null>(null);
+  const [secondChoice, setSecondChoice] = useState<'first' | 'second' | null>(null);
+
+  const miniGameComponents: Record<MiniGameKey, ComponentType> = {
+    Mini_games_1: MiniGames1,
+    Mini_games_2: MiniGames2,
+    Mini_games_3: MiniGames3,
+    Mini_games_4: MiniGames4,
+    Mini_games_5: MiniGames5,
+  };
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -71,6 +107,72 @@ export default function MainGamePage() {
     setPlayerName(name);
     setScreen('done');
     // router.push(`/game?name=${encodeURIComponent(name)}`); // navigate to game
+  }
+
+  function handleProceedToStory() {
+    setScreen('story');
+  }
+
+  function handleProceedToChoice() {
+    setScreen('choice');
+  }
+
+  function handleProceedToStoryPathContinue() {
+    setScreen('story-path-continue');
+  }
+
+  function handleProceedToStoryPathContinue2() {
+    setScreen('story-path-continue-2');
+  }
+
+  function handleProceedToStoryPathContinueChoice() {
+    setScreen('story-path-continue-choice');
+  }
+
+  function handleChooseSecondPath(option: 'first' | 'second') {
+    setSecondChoice(option);
+    setScreen('story-path-continue-choice-result');
+  }
+
+  function getRandomMiniGame() {
+    const randomIndex = Math.floor(Math.random() * MINI_GAMES.length);
+    return MINI_GAMES[randomIndex];
+  }
+
+  function handleChoosePath(path: string) {
+    if (path === 'minigame') {
+      const game = getRandomMiniGame();
+      setSelectedMiniGame(game);
+    } else if (path === 'mini4') {
+      setSelectedMiniGame('Mini_games_4');
+    } else if (path === 'forest' || path === 'mountain') {
+      setSelectedPath(path as 'forest' | 'mountain');
+      setScreen('story-path');
+    }
+  }
+
+  function handleReturnFromMiniGame() {
+    setSelectedMiniGame(null);
+    setHasFinishedMiniGame(true);
+    setScreen('story');
+  }
+
+  if (selectedMiniGame) {
+    const SelectedGame = miniGameComponents[selectedMiniGame];
+    return (
+      <div className="relative min-h-screen bg-black">
+        <div className="absolute z-50 top-4 left-4">
+          <button
+            type="button"
+            onClick={handleReturnFromMiniGame}
+            className="rounded-lg border border-slate-200/30 bg-slate-950/80 px-4 py-2 text-sm text-white transition hover:bg-slate-900"
+          >
+            จบเกมและกลับ
+          </button>
+        </div>
+        <SelectedGame />
+      </div>
+    );
   }
 
   return (
@@ -132,6 +234,173 @@ export default function MainGamePage() {
             สวัสดี <span className="text-white font-semibold">{playerName}</span>!
           </p>
           <p className="text-sm text-blue-300 mt-2">ขอให้สนุกกับการผจญภัยนะครับ</p>
+          <div className="mt-4 text-right">
+            <button
+              onClick={handleProceedToStory}
+              className="border border-blue-500 text-blue-300 hover:bg-blue-900/40 hover:text-white px-5 py-1.5 rounded-lg text-sm transition-colors"
+            >
+              ถัดไป ▶
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Story ── */}
+      {screen === 'story' && (
+        <div className="relative z-10 w-full bg-[rgba(8,12,50,0.97)] border-t-2 border-blue-600 px-7 py-6 animate-fadeUp">
+          <p className="text-[11px] tracking-widest text-blue-400 uppercase mb-2">เรื่องราว</p>
+          <p className="text-[17px] leading-relaxed text-slate-100 min-h-[52px]">
+            {STORY_TEXT}
+          </p>
+          <div className="mt-4 text-right">
+            <button
+              onClick={handleProceedToChoice}
+              className="border border-blue-500 text-blue-300 hover:bg-blue-900/40 hover:text-white px-5 py-1.5 rounded-lg text-sm transition-colors"
+            >
+              เลือกเส้นทาง ▶
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Choice ── */}
+      {screen === 'choice' && (
+        <div className="relative z-10 w-full bg-[rgba(8,12,50,0.97)] border-t-2 border-blue-600 px-7 py-6 animate-fadeUp">
+          <p className="text-[11px] tracking-widest text-blue-400 uppercase mb-4">เลือกเส้นทาง</p>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => handleChoosePath('forest')}
+              className="w-full border border-green-500 text-green-300 hover:bg-green-900/40 hover:text-white px-5 py-3 rounded-lg text-base transition-colors font-medium"
+            >
+              ทางเลือกที่ 1
+            </button>
+            <button
+              onClick={() => handleChoosePath('mountain')}
+              className="w-full border border-purple-500 text-purple-300 hover:bg-purple-900/40 hover:text-white px-5 py-3 rounded-lg text-base transition-colors font-medium"
+            >
+              ทางเลือกที่ 2
+            </button>
+            {!hasFinishedMiniGame && (
+              <button
+                onClick={() => handleChoosePath('minigame')}
+                className="w-full border border-yellow-500 text-yellow-300 hover:bg-yellow-900/40 hover:text-white px-5 py-3 rounded-lg text-base transition-colors font-medium"
+              >
+                มินิเกมแก้เบื่อ(ไม่เกี่ยวกับเนื้อเรื่องหลัก)
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Story Path ── */}
+      {screen === 'story-path' && (
+        <div className="relative z-10 w-full bg-[rgba(8,12,50,0.97)] border-t-2 border-blue-600 px-7 py-6 animate-fadeUp">
+          <p className="text-[11px] tracking-widest text-blue-400 uppercase mb-2">เนื้อเรื่อง</p>
+          <p className="text-[17px] leading-relaxed text-slate-100 min-h-[52px]">
+            {selectedPath && STORY_PATH_TEXTS[selectedPath]}
+          </p>
+          <div className="mt-4 flex justify-between gap-3">
+            <button
+              onClick={() => {
+                setSelectedPath(null);
+                setScreen('choice');
+              }}
+              className="border border-blue-500 text-blue-300 hover:bg-blue-900/40 hover:text-white px-5 py-1.5 rounded-lg text-sm transition-colors"
+            >
+              กลับไปเลือกใหม่ ◀
+            </button>
+            <button
+              onClick={handleProceedToStoryPathContinue}
+              className="border border-blue-500 text-blue-300 hover:bg-blue-900/40 hover:text-white px-5 py-1.5 rounded-lg text-sm transition-colors"
+            >
+              ถัดไป ▶
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Story Path Continue ── */}
+      {screen === 'story-path-continue' && (
+        <div className="relative z-10 w-full bg-[rgba(8,12,50,0.97)] border-t-2 border-blue-600 px-7 py-6 animate-fadeUp">
+          <p className="text-[11px] tracking-widest text-blue-400 uppercase mb-2">เนื้อเรื่องต่อจากทางเลือก</p>
+          <p className="text-[17px] leading-relaxed text-slate-100 min-h-[52px]">
+            {selectedPath && STORY_PATH_CONTINUE_TEXTS[selectedPath]}
+          </p>
+          <div className="mt-4 text-right">
+            <button
+              onClick={handleProceedToStoryPathContinue2}
+              className="border border-blue-500 text-blue-300 hover:bg-blue-900/40 hover:text-white px-5 py-1.5 rounded-lg text-sm transition-colors"
+            >
+              ถัดไป ▶
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Story Path Continue 2 ── */}
+      {screen === 'story-path-continue-2' && (
+        <div className="relative z-10 w-full bg-[rgba(8,12,50,0.97)] border-t-2 border-blue-600 px-7 py-6 animate-fadeUp">
+          <p className="text-[11px] tracking-widest text-blue-400 uppercase mb-2">เนื้อเรื่องส่วนที่ 2</p>
+          <p className="text-[17px] leading-relaxed text-slate-100 min-h-[52px]">
+            {selectedPath && STORY_PATH_CONTINUE_2_TEXTS[selectedPath]}
+          </p>
+          <div className="mt-4 text-right">
+            <button
+              onClick={handleProceedToStoryPathContinueChoice}
+              className="border border-blue-500 text-blue-300 hover:bg-blue-900/40 hover:text-white px-5 py-1.5 rounded-lg text-sm transition-colors"
+            >
+              ถัดไป ▶
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Story Path Continue Choice ── */}
+      {screen === 'story-path-continue-choice' && (
+        <div className="relative z-10 w-full bg-[rgba(8,12,50,0.97)] border-t-2 border-blue-600 px-7 py-6 animate-fadeUp">
+          <p className="text-[11px] tracking-widest text-blue-400 uppercase mb-2">ทางเลือกส่วนที่ 2</p>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => handleChooseSecondPath('first')}
+              className="w-full border border-green-500 text-green-300 hover:bg-green-900/40 hover:text-white px-5 py-3 rounded-lg text-base transition-colors font-medium"
+            >
+              ...........ทางเลือกที่1.1...........
+            </button>
+            <button
+              onClick={() => handleChooseSecondPath('second')}
+              className="w-full border border-purple-500 text-purple-300 hover:bg-purple-900/40 hover:text-white px-5 py-3 rounded-lg text-base transition-colors font-medium"
+            >
+              ...........ทางเลือกที2.1..............
+            </button>
+            <button
+              onClick={() => handleChoosePath('mini4')}
+              className="w-full border border-yellow-500 text-yellow-300 hover:bg-yellow-900/40 hover:text-white px-5 py-3 rounded-lg text-base transition-colors font-medium"
+            >
+              มินิเกม Mini_games_4
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Story Path Continue Choice Result ── */}
+      {screen === 'story-path-continue-choice-result' && (
+        <div className="relative z-10 w-full bg-[rgba(8,12,50,0.97)] border-t-2 border-blue-600 px-7 py-6 animate-fadeUp">
+          <p className="text-[11px] tracking-widest text-blue-400 uppercase mb-2">ผลลัพธ์ทางเลือก</p>
+          <p className="text-[17px] leading-relaxed text-slate-100 min-h-[52px]">
+            {secondChoice && SECOND_CHOICE_RESULT_TEXTS[secondChoice]}
+          </p>
+          <div className="mt-4 text-right">
+            <button
+              onClick={() => {
+                setSelectedPath(null);
+                setSecondChoice(null);
+                setScreen('story');
+              }}
+              className="border border-blue-500 text-blue-300 hover:bg-blue-900/40 hover:text-white px-5 py-1.5 rounded-lg text-sm transition-colors"
+            >
+              ถัดไป ▶
+            </button>
+          </div>
         </div>
       )}
     </div>
