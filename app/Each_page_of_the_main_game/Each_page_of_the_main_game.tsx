@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState, useMemo, type ComponentType } from 'react';
-import MiniGames1 from '../Mini_games_1/Mini_games_1';
 import MiniGames2 from '../Mini_games_2/Mini_games_2';
 import MiniGames3 from '../Mini_games_3/Mini_games_3';
 import MiniGames4 from '../Mini_games_4/Mini_games_4';
@@ -57,7 +56,7 @@ const TEXT: Record<string, string> = {
 // ─────────────────────────────────────────────
 //  TYPES
 // ─────────────────────────────────────────────
-const MINI_GAMES = ['Mini_games_1', 'Mini_games_2', 'Mini_games_3', 'Mini_games_4', 'Mini_games_5'] as const;
+const MINI_GAMES = ['Mini_games_2', 'Mini_games_3', 'Mini_games_4', 'Mini_games_5'] as const;
 type MiniGameKey = (typeof MINI_GAMES)[number];
 
 type Screen =
@@ -99,13 +98,13 @@ export default function MainGamePage() {
   const [playerName, setPlayerName] = useState('');
   const [inputName, setInputName] = useState('');
   const [selectedMiniGame, setSelectedMiniGame] = useState<MiniGameKey | null>(null);
-  const [hasFinishedMiniGame, setHasFinishedMiniGame] = useState(false);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // จำหน้าก่อนเข้ามินิเกม เพื่อกลับมาถูกหน้าเสมอ
+  const previousScreenRef = useRef<Screen>('first_choice');
 
   const miniGameComponents = useMemo<Record<MiniGameKey, ComponentType>>(() => ({
-    Mini_games_1: MiniGames1,
     Mini_games_2: MiniGames2,
     Mini_games_3: MiniGames3,
     Mini_games_4: MiniGames4,
@@ -121,7 +120,10 @@ export default function MainGamePage() {
 
   // ── Focus name input ──────────────────────────────────────────────────────
   useEffect(() => {
-    if (screen === 'name') inputRef.current?.focus();
+    if (screen === 'name') {
+      const t = setTimeout(() => inputRef.current?.focus(), 0);
+      return () => clearTimeout(t);
+    }
   }, [screen]);
 
   function startTyping(text: string) {
@@ -167,13 +169,16 @@ export default function MainGamePage() {
 
   // ── Mini-game helpers ─────────────────────────────────────────────────────
   function launchRandomMiniGame() {
+    // บันทึกหน้าปัจจุบันก่อนเข้ามินิเกม
+    previousScreenRef.current = screen;
     const i = Math.floor(Math.random() * MINI_GAMES.length);
     setSelectedMiniGame(MINI_GAMES[i]);
   }
 
   function handleReturnFromMiniGame() {
     setSelectedMiniGame(null);
-    setHasFinishedMiniGame(true);
+    // คืนกลับหน้าทางเลือกที่อยู่ก่อนเข้ามินิเกม
+    setScreen(previousScreenRef.current);
   }
 
   // ── Mini-game overlay ─────────────────────────────────────────────────────
@@ -222,6 +227,13 @@ export default function MainGamePage() {
       </Box>
     );
   }
+
+  // mini-game choice entry — แสดงทุกทางเลือกเสมอ ไม่ซ่อนหลังเล่น
+  const miniGameChoice = {
+    label: 'มินิเกมแก้เบื่อ (ไม่เกี่ยวกับเนื้อเรื่องหลัก)',
+    color: 'yellow' as const,
+    onClick: launchRandomMiniGame,
+  };
 
   function ChoiceBox({ label, choices }: {
     label: string;
@@ -306,11 +318,7 @@ export default function MainGamePage() {
         <ChoiceBox label="เลือกเส้นทาง" choices={[
           { label: 'ทางเลือกที่ 1', color: 'green', onClick: () => setScreen('ch1_story_a') },
           { label: 'ทางเลือกที่ 2', color: 'purple', onClick: () => setScreen('ch2_story_a') },
-          ...(!hasFinishedMiniGame ? [{
-            label: 'มินิเกมแก้เบื่อ (ไม่เกี่ยวกับเนื้อเรื่องหลัก)',
-            color: 'yellow' as const,
-            onClick: launchRandomMiniGame,
-          }] : []),
+          miniGameChoice,
         ]} />
       )}
 
@@ -339,6 +347,7 @@ export default function MainGamePage() {
         <ChoiceBox label="ทางเลือก 1.1" choices={[
           { label: 'ทางเลือก 1.1 – A', color: 'green', onClick: () => setScreen('ch1_1_story') },
           { label: 'ทางเลือก 1.1 – B (รวมกับ 2.1)', color: 'yellow', onClick: () => setScreen('shared_1_story') },
+          miniGameChoice,
         ]} />
       )}
 
@@ -365,6 +374,7 @@ export default function MainGamePage() {
         <ChoiceBox label="ทางเลือก 2.1" choices={[
           { label: 'ทางเลือก 2.1 – A (รวมกับ 1.1)', color: 'yellow', onClick: () => setScreen('shared_1_story') },
           { label: 'ทางเลือก 2.1 – B', color: 'purple', onClick: () => setScreen('ch2_1_story') },
+          miniGameChoice,
         ]} />
       )}
 
@@ -382,6 +392,7 @@ export default function MainGamePage() {
       {screen === 'third_choice_1' && (
         <ChoiceBox label="ทางเลือก 1.2" choices={[
           { label: 'ทางเลือก 1.2 – ดำเนินต่อ', color: 'green', onClick: () => setScreen('shared_2_story') },
+          miniGameChoice,
           { label: 'ยอมแพ้', color: 'red', onClick: () => setScreen('bad_ending') },
         ]} />
       )}
@@ -393,6 +404,7 @@ export default function MainGamePage() {
         <ChoiceBox label="ทางเลือก 0" choices={[
           { label: 'ดำเนินต่อ – สาย A', color: 'green', onClick: () => setScreen('shared_2_story') },
           { label: 'ดำเนินต่อ – สาย B', color: 'purple', onClick: () => setScreen('shared_3_story') },
+          miniGameChoice,
           { label: 'ยอมแพ้', color: 'red', onClick: () => setScreen('bad_ending') },
         ]} />
       )}
@@ -403,6 +415,7 @@ export default function MainGamePage() {
       {screen === 'third_choice_2' && (
         <ChoiceBox label="ทางเลือก 2.2" choices={[
           { label: 'ทางเลือก 2.2 – ดำเนินต่อ', color: 'purple', onClick: () => setScreen('shared_3_story') },
+          miniGameChoice,
           { label: 'ยอมแพ้', color: 'red', onClick: () => setScreen('bad_ending') },
         ]} />
       )}
@@ -422,6 +435,7 @@ export default function MainGamePage() {
         <ChoiceBox label="ทางเลือกสุดท้าย" choices={[
           { label: 'ไปต่อ', color: 'green', onClick: () => setScreen('reflect_1') },
           { label: 'เลือกใหม่', color: 'yellow', onClick: () => setScreen('final_choice_1') },
+          miniGameChoice,
           { label: 'ยอมแพ้', color: 'red', onClick: () => setScreen('bad_ending') },
         ]} />
       )}
@@ -429,6 +443,7 @@ export default function MainGamePage() {
         <ChoiceBox label="ทางเลือกสุดท้าย" choices={[
           { label: 'ไปต่อ', color: 'purple', onClick: () => setScreen('reflect_2') },
           { label: 'เลือกใหม่', color: 'yellow', onClick: () => setScreen('final_choice_2') },
+          miniGameChoice,
           { label: 'ยอมแพ้', color: 'red', onClick: () => setScreen('bad_ending') },
         ]} />
       )}
@@ -469,7 +484,6 @@ export default function MainGamePage() {
           <div className="mt-4 text-right">
             <button onClick={() => {
               setScreen('intro_story');
-              setHasFinishedMiniGame(false);
             }} className="btn-secondary">
               เริ่มใหม่อีกครั้ง ↺
             </button>
