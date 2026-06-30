@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useMemo, type ComponentType } from 'react';
+import { useRouter } from 'next/navigation';
 import MiniGames2 from '../Mini_games_2/Mini_games_2';
 import MiniGames3 from '../Mini_games_3/Mini_games_3';
 import MiniGames4 from '../Mini_games_4/Mini_games_4';
@@ -91,6 +92,7 @@ type Screen =
 //  COMPONENT
 // ─────────────────────────────────────────────
 export default function MainGamePage() {
+  const router = useRouter();
   const [screen, setScreen] = useState<Screen>('dialog');
   const [step, setStep] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
@@ -490,6 +492,17 @@ export default function MainGamePage() {
         <Box label="จบเกม">
           <p className="text-[17px] leading-relaxed text-slate-100">{TEXT['good_ending']}</p>
           <p className="text-sm text-blue-300 mt-3">ขอบคุณที่เล่นเกมนี้ 🌟</p>
+          <div className="mt-4 text-right">
+            <button onClick={() => {
+              setScore(0);
+              setLastScreenPlayedMiniGame(null);
+              setInputName('');
+              setStep(0);
+              router.push('/');
+            }} className="btn-secondary">
+              เริ่มเกมใหม่ ↺
+            </button>
+          </div>
         </Box>
       )}
 
@@ -499,8 +512,11 @@ export default function MainGamePage() {
           <p className="text-[17px] leading-relaxed text-slate-100">{TEXT['bad_ending']}</p>
           <div className="mt-4 text-right">
             <button onClick={() => {
+              setScore(0);
               setLastScreenPlayedMiniGame(null);
-              setScreen('intro_story');
+              setInputName('');
+              setStep(0);
+              router.push('/');
             }} className="btn-secondary">
               เริ่มใหม่อีกครั้ง ↺
             </button>
