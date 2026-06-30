@@ -6,6 +6,7 @@ import MiniGames2 from '../Mini_games_2/Mini_games_2';
 import MiniGames3 from '../Mini_games_3/Mini_games_3';
 import MiniGames4 from '../Mini_games_4/Mini_games_4';
 import MiniGames5 from '../Mini_games_5/Mini_games_5';
+import AudioSettingsButton from '../components/AudioSettingsButton';
 
 // ─────────────────────────────────────────────
 //  โครงสร้างนี้สร้างตาม "ข้อมูลการทำงานของเส้นทางเนื้อเรื่อง.drawio"
@@ -316,6 +317,12 @@ export default function MainGamePage() {
             จบเกมและกลับ
           </button>
         </div>
+
+        {/* ปุ่มตั้งค่าเสียง ระหว่างเล่นมินิเกม */}
+        <div className="fixed top-4 right-4 z-50">
+          <AudioSettingsButton />
+        </div>
+
         <SelectedGame />
       </div>
     );
@@ -395,6 +402,11 @@ export default function MainGamePage() {
   return (
     <div className="relative min-h-screen flex flex-col justify-end bg-black overflow-hidden">
       <Stars />
+
+      {/* ปุ่มตั้งค่าเสียง ลอยอยู่มุมขวาบนตลอดเวลา */}
+      <div className="fixed top-4 right-4 z-50">
+        <AudioSettingsButton />
+      </div>
 
       {/* ── คำบรรยายเปิดเกม ── */}
       {screen === 'opening_dialog' && (
