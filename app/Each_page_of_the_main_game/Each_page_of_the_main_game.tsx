@@ -8,50 +8,52 @@ import MiniGames4 from '../Mini_games_4/Mini_games_4';
 import MiniGames5 from '../Mini_games_5/Mini_games_5';
 
 // ─────────────────────────────────────────────
-//  TEXT CONTENT  (แก้ตรงนี้ทีหลัง)
+//  โครงสร้างนี้สร้างตาม "ข้อมูลการทำงานของเส้นทางเนื้อเรื่อง.drawio"
+//  เกมแบ่งเป็น 3 วัน วันละ 2 ทางเลือก (choice1 / choice2)
+//  - choice1 (เฉพาะวันที่ 1) มีขั้น "มั่นใจกับทางเลือกไหม" และเป็นจุดตั้งชื่อผู้เล่น
+//  - ทางเลือก A ของทุกจุด  -> ได้รับ Fracture +1
+//  - ทางเลือก B ของทุกจุด  -> ต้องเล่นมินิเกมก่อน แล้วได้รับ Hope +1
+//  - จบวันที่ 3 แล้วนำ Hope กับ Fracture มาเทียบกัน เพื่อตัดสิน Good / Bad Ending
 // ─────────────────────────────────────────────
+
+// ── คำบรรยายเปิดเกม (typewriter) ───────────────────────────────────────────
 const DIALOGS = [
   'สวัสดีทุกคนที่มีความเครียด เกมนี้มีแนวคิดเป็นเกมเนื้อเรื่องที่จะช่วยให้ทุกคนคลายเครียด',
   'และยังมีมินิเกมเล็กๆ น้อยๆ ให้เล่นด้วย',
-  'เอาละ ตอนนี้มาตั้งชื่อตัวละครของคุณกัน',
+  'เอาละ ตอนนี้มาเริ่มการผจญภัยกันเลย',
 ];
 
+// ── เนื้อเรื่องทั้งหมด (แก้ไขข้อความตรงนี้ได้เลย) ───────────────────────────
 const TEXT: Record<string, string> = {
-  // ── ช่วงต้น ──────────────────────────────────────────────────────────────
-  intro_story:              '[ เนื้อเรื่องเปิดเรื่อง ]',
+  // ── วันที่ 1 ──────────────────────────────────────────────────────────
+  day0_intro:                 '[ เนื้อเรื่องเปิดเรื่องวันที่ 1 ]',
+  day0_after_intro:           '[ เนื้อเรื่องหลังจบมินิเกมแรก ]',
+  day0_choice1_optA_story:    '[ เนื้อเรื่องทางเลือกที่ 1 (วันที่ 1) ]',
+  day0_choice1_optB_story:    '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 1) ]',
+  day0_converge_story:        '[ เนื้อเรื่องที่มาบรรจบกัน (วันที่ 1) ]',
+  day0_choice2_optA_story:    '[ เนื้อเรื่องทางเลือก A รอบสอง (วันที่ 1) ]',
+  day0_choice2_optB_story:    '[ เนื้อเรื่องทางเลือก B รอบสอง (วันที่ 1) ]',
+  day0_pre_ending:            '[ เนื้อเรื่องก่อนจบวันที่ 1 ]',
 
-  // ── ทางเลือก 1 (forest) ──────────────────────────────────────────────────
-  ch1_story_a:              '[ เนื้อเรื่องทางเลือกที่ 1 – ส่วนที่ 1 ]',
-  ch1_story_b:              '[ เนื้อเรื่องทางเลือกที่ 1 – ส่วนที่ 2 ]',
+  // ── วันที่ 2 ──────────────────────────────────────────────────────────
+  day1_choice1_optA_story:    '[ เนื้อเรื่องทางเลือกที่ 1 (วันที่ 2) ]',
+  day1_choice1_optB_story:    '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 2) ]',
+  day1_converge_story:        '[ เนื้อเรื่องที่มาบรรจบกัน (วันที่ 2) ]',
+  day1_choice2_optA_story:    '[ เนื้อเรื่องทางเลือก A รอบสอง (วันที่ 2) ]',
+  day1_choice2_optB_story:    '[ เนื้อเรื่องทางเลือก B รอบสอง (วันที่ 2) ]',
+  day1_pre_ending:            '[ เนื้อเรื่องก่อนจบวันที่ 2 ]',
 
-  // ── ทางเลือก 2 (mountain) ────────────────────────────────────────────────
-  ch2_story_a:              '[ เนื้อเรื่องทางเลือกที่ 2 – ส่วนที่ 1 ]',
-  ch2_story_b:              '[ เนื้อเรื่องทางเลือกที่ 2 – ส่วนที่ 2 ]',
+  // ── วันที่ 3 ──────────────────────────────────────────────────────────
+  day2_choice1_optA_story:    '[ เนื้อเรื่องทางเลือกที่ 1 (วันที่ 3) ]',
+  day2_choice1_optB_story:    '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 3) ]',
+  day2_converge_story:        '[ เนื้อเรื่องที่มาบรรจบกัน (วันที่ 3) ]',
+  day2_choice2_optA_story:    '[ เนื้อเรื่องทางเลือก A รอบสอง (วันที่ 3) ]',
+  day2_choice2_optB_story:    '[ เนื้อเรื่องทางเลือก B รอบสอง (วันที่ 3) ]',
+  day2_pre_ending:            '[ เนื้อเรื่องก่อนจบวันที่ 3 ]',
 
-  // ── ทางเลือก 1.1 (forest → A) ───────────────────────────────────────────
-  ch1_1_story:              '[ เนื้อเรื่องทางเลือกที่ 1.1 ]',
-  ch1_1_story_b:            '[ เนื้อเรื่องทางเลือกที่ 1.1 – ส่วนที่ 2 ]',
-
-  // ── ทางเลือก 2.1 (forest → B / mountain → A) ────────────────────────────
-  shared_1_story:           '[ เนื้อเรื่องรวม (1.1 + 2.1) ]',
-  shared_1_story_b:         '[ เนื้อเรื่องรวม – ส่วนที่ 2 ]',
-
-  // ── ทางเลือก 2.1 (mountain → B) ─────────────────────────────────────────
-  ch2_1_story:              '[ เนื้อเรื่องทางเลือกที่ 2.1 ]',
-  ch2_1_story_b:            '[ เนื้อเรื่องทางเลือกที่ 2.1 – ส่วนที่ 2 ]',
-
-  // ── เนื้อเรื่องรวม (หลังทางเลือก 1.2 / 0 / 2.2) ──────────────────────
-  shared_2_story:           '[ เนื้อเรื่องรวมสาย 1 (1.2 / ทางเลือก 0) ]',
-  shared_3_story:           '[ เนื้อเรื่องรวมสาย 2 (2.2 / ทางเลือก 0) ]',
-
-  // ── เนื้อเรื่องก่อนจบ ────────────────────────────────────────────────────
-  pre_ending_story:         '[ เนื้อเรื่องก่อนจบเกม ]',
-  reflect_1:                '[ คุณคิดไตร่ตรองกับการเลือกของคุณ – สาย 1 ]',
-  reflect_2:                '[ คุณคิดไตร่ตรองกับการเลือกของคุณ – สาย 2 ]',
-
-  // ── จบ ───────────────────────────────────────────────────────────────────
-  good_ending:              '[ จบเกมแบบดี 🎉 ]',
-  bad_ending:               '[ คุณยอมแพ้... ]',
+  // ── จบเกม ────────────────────────────────────────────────────────────
+  final_good:                  '[ คำบรรยายจบเกมแบบ Good Ending 🎉 ]',
+  final_bad:                   '[ คำบรรยายจบเกมแบบ Bad Ending ]',
 };
 
 // ─────────────────────────────────────────────
@@ -60,54 +62,92 @@ const TEXT: Record<string, string> = {
 const MINI_GAMES = ['Mini_games_2', 'Mini_games_3', 'Mini_games_4', 'Mini_games_5'] as const;
 type MiniGameKey = (typeof MINI_GAMES)[number];
 
-type Screen =
-  | 'dialog'
-  | 'name'
-  | 'greeting'
-  // ── intro ──
-  | 'intro_story'
-  // ── first branch ──
-  | 'first_choice'
-  | 'ch1_story_a' | 'ch1_story_b'
-  | 'ch2_story_a' | 'ch2_story_b'
-  // ── second branch (from ch1) ──
-  | 'second_choice_ch1'
-  | 'ch1_1_story' | 'ch1_1_story_b'
-  | 'shared_1_story' | 'shared_1_story_b'
-  // ── second branch (from ch2) ──
-  | 'second_choice_ch2'
-  | 'ch2_1_story' | 'ch2_1_story_b'
-  // ── third branch ──
-  | 'third_choice_1' | 'third_choice_2' | 'third_choice_0'
-  | 'shared_2_story' | 'shared_3_story'
-  // ── fourth branch ──
-  | 'fourth_choice_1' | 'fourth_choice_2'
-  | 'reflect_1' | 'reflect_2'
-  // ── endings ──
-  | 'pre_ending_story'
-  | 'final_choice_1' | 'final_choice_2'
-  | 'good_ending' | 'bad_ending';
+type Choice1Config =
+  | { hasConfirm: true }
+  | { hasConfirm: false; optBMiniGame: MiniGameKey | 'random' };
+
+type DayConfig = {
+  dayLabel: string;
+  hasIntro: boolean;
+  introMiniGame?: MiniGameKey;
+  choice1: Choice1Config;
+  choice2: { optBMiniGame: MiniGameKey | 'random' };
+};
+
+const DAY_CONFIGS: DayConfig[] = [
+  {
+    dayLabel: 'วันที่ 1',
+    hasIntro: true,
+    introMiniGame: 'Mini_games_3',
+    choice1: { hasConfirm: true },
+    choice2: { optBMiniGame: 'Mini_games_2' },
+  },
+  {
+    dayLabel: 'วันที่ 2',
+    hasIntro: false,
+    choice1: { hasConfirm: false, optBMiniGame: 'Mini_games_4' },
+    choice2: { optBMiniGame: 'Mini_games_5' },
+  },
+  {
+    dayLabel: 'วันที่ 3',
+    hasIntro: false,
+    choice1: { hasConfirm: false, optBMiniGame: 'random' },
+    choice2: { optBMiniGame: 'random' },
+  },
+];
+
+type StoryNode =
+  | 'intro'
+  | 'introMiniGame'
+  | 'afterIntro'
+  | 'choice1'
+  | 'choice1_optA'
+  | 'choice1_optB'
+  | 'choice1_confirm'
+  | 'choice1_name'
+  | 'choice1_miniGame'
+  | 'converge'
+  | 'choice2'
+  | 'choice2_optA'
+  | 'choice2_optB'
+  | 'choice2_miniGame'
+  | 'preEnding'
+  | 'dayEnd';
+
+// จุดที่กำลังเล่นมินิเกมอยู่ ใช้ตัดสินว่าจบมินิเกมแล้วต้องไปต่อจุดไหน + ได้ Hope จากจุดไหน
+type MiniGameSource = 'intro' | 'choice1' | 'choice2';
+
+type Screen = 'opening_dialog' | 'story' | 'final_narration' | 'recap';
 
 // ─────────────────────────────────────────────
 //  COMPONENT
 // ─────────────────────────────────────────────
 export default function MainGamePage() {
   const router = useRouter();
-  const [screen, setScreen] = useState<Screen>('dialog');
+
+  // ── สถานะหลัก ────────────────────────────────────────────────────────────
+  const [screen, setScreen] = useState<Screen>('opening_dialog');
+  const [dayIndex, setDayIndex] = useState(0);
+  const [node, setNode] = useState<StoryNode>('intro');
+
+  // ── ค่าคะแนนของเรื่อง (แทนที่ระบบ score เดิม) ────────────────────────────
+  const [hope, setHope] = useState(0);
+  const [fracture, setFracture] = useState(0);
+
+  // ── คำบรรยายเปิดเกม ──────────────────────────────────────────────────────
   const [step, setStep] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // ── ชื่อผู้เล่น (ตั้งชื่อกลางทางเลือกของวันที่ 1) ────────────────────────
   const [playerName, setPlayerName] = useState('');
   const [inputName, setInputName] = useState('');
-  const [selectedMiniGame, setSelectedMiniGame] = useState<MiniGameKey | null>(null);
-  const [score, setScore] = useState(0);
-  const [miniGameReturnScreen, setMiniGameReturnScreen] = useState<Screen>('first_choice');
-  const [lastScreenPlayedMiniGame, setLastScreenPlayedMiniGame] = useState<Screen | null>(null);
-
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  // จำหน้าก่อนเข้ามินิเกม เพื่อกลับมาถูกหน้าเสมอ
-  const previousScreenRef = useRef<Screen>('first_choice');
+
+  // ── มินิเกม ───────────────────────────────────────────────────────────────
+  const [selectedMiniGame, setSelectedMiniGame] = useState<MiniGameKey | null>(null);
+  const [miniGameSource, setMiniGameSource] = useState<MiniGameSource | null>(null);
 
   const miniGameComponents = useMemo<Record<MiniGameKey, ComponentType>>(() => ({
     Mini_games_2: MiniGames2,
@@ -116,22 +156,22 @@ export default function MainGamePage() {
     Mini_games_5: MiniGames5,
   }), []);
 
-  // แสดงตัวนับคะแนน: หลังตั้งชื่อ (greeting เป็นต้นไป) จนถึงก่อนหน้าจบเกม
-  const showScoreCounter = !['dialog', 'name', 'good_ending', 'bad_ending'].includes(screen);
+  const dayConfig = DAY_CONFIGS[dayIndex];
+  const showScoreCounter = screen === 'story' && node !== 'intro';
 
-  // ── Dialog typewriter ─────────────────────────────────────────────────────
+  // ── Dialog typewriter (เปิดเกม) ────────────────────────────────────────────
   useEffect(() => {
-    if (screen !== 'dialog') return;
+    if (screen !== 'opening_dialog') return;
     startTyping(DIALOGS[step]);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [step, screen]);
 
-  // ── Focus name input ──────────────────────────────────────────────────────
+  // ── Focus ช่องตั้งชื่อ ──────────────────────────────────────────────────────
   useEffect(() => {
-    if (screen === 'name') {
+    if (screen === 'story' && node === 'choice1_name') {
       inputRef.current?.focus();
     }
-  }, [screen]);
+  }, [screen, node]);
 
   function startTyping(text: string) {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -149,7 +189,6 @@ export default function MainGamePage() {
     }, 40);
   }
 
-  // ── Dialog handler ────────────────────────────────────────────────────────
   function handleDialogNext() {
     if (isTyping) {
       clearInterval(timerRef.current!);
@@ -162,34 +201,105 @@ export default function MainGamePage() {
     if (next < DIALOGS.length) {
       setStep(next);
     } else {
-      setScreen('name');
+      goToDayStart(0);
     }
   }
 
-  // ── Name handler ──────────────────────────────────────────────────────────
-  function handleConfirm() {
-    const name = inputName.trim();
-    if (!name) { inputRef.current?.focus(); return; }
-    setPlayerName(name);
-    setScreen('greeting');
+  // ── helper: ไปเริ่มต้นวันที่ N ─────────────────────────────────────────────
+  function goToDayStart(idx: number) {
+    setDayIndex(idx);
+    setScreen('story');
+    setNode(DAY_CONFIGS[idx].hasIntro ? 'intro' : 'choice1');
   }
 
-  // ── Mini-game helpers ─────────────────────────────────────────────────────
-  function launchRandomMiniGame() {
-    // บันทึกหน้าปัจจุบันก่อนเข้ามินิเกมให้กลับมาในหน้าทางเลือกเดิม
-    const targetScreen = screen;
-    previousScreenRef.current = targetScreen;
-    setMiniGameReturnScreen(targetScreen);
-    const i = Math.floor(Math.random() * MINI_GAMES.length);
-    setSelectedMiniGame(MINI_GAMES[i]);
+  // ── helper: เลือกมินิเกมแบบสุ่ม หรือมินิเกมตายตัว ──────────────────────────
+  function resolveMiniGame(key: MiniGameKey | 'random'): MiniGameKey {
+    if (key !== 'random') return key;
+    return MINI_GAMES[Math.floor(Math.random() * MINI_GAMES.length)];
+  }
+
+  function launchMiniGame(key: MiniGameKey | 'random', source: MiniGameSource) {
+    setSelectedMiniGame(resolveMiniGame(key));
+    setMiniGameSource(source);
   }
 
   function handleReturnFromMiniGame() {
+    const source = miniGameSource;
     setSelectedMiniGame(null);
-    setScore(prev => prev + 5);
-    setLastScreenPlayedMiniGame(miniGameReturnScreen);
-    // คืนกลับหน้าทางเลือกที่อยู่ก่อนเข้ามินิเกมโดยตรง
-    setScreen(miniGameReturnScreen || previousScreenRef.current);
+    setMiniGameSource(null);
+
+    if (source === 'intro') {
+      setNode('afterIntro');
+    } else if (source === 'choice1') {
+      setHope(h => h + 1);
+      setNode('converge');
+    } else if (source === 'choice2') {
+      setHope(h => h + 1);
+      setNode('preEnding');
+    }
+  }
+
+  // ── ทางเลือกที่ 1 (choice1) ───────────────────────────────────────────────
+  function handleChoice1OptA() {
+    setFracture(f => f + 1);
+    setNode('converge');
+  }
+
+  function handleChoice1OptB() {
+    if (dayConfig.choice1.hasConfirm) {
+      setNode('choice1_confirm');
+    } else {
+      setNode('choice1_optB');
+    }
+  }
+
+  function handleConfirmYes() {
+    setNode('choice1_name');
+  }
+
+  function handleConfirmNo() {
+    // ไม่มั่นใจ -> ไปรับผลแบบทางเลือก A แทน
+    setFracture(f => f + 1);
+    setNode('converge');
+  }
+
+  function handleConfirmName() {
+    const name = inputName.trim();
+    if (!name) { inputRef.current?.focus(); return; }
+    setPlayerName(name);
+    setHope(h => h + 1);
+    setNode('converge');
+  }
+
+  // ── ทางเลือกที่ 2 (choice2) ───────────────────────────────────────────────
+  function handleChoice2OptA() {
+    setFracture(f => f + 1);
+    setNode('preEnding');
+  }
+
+  function handleChoice2OptB() {
+    setNode('choice2_optB');
+  }
+
+  // ── จบแต่ละวัน / จบเกม ───────────────────────────────────────────────────
+  function handleDayEndNext() {
+    if (dayIndex < DAY_CONFIGS.length - 1) {
+      goToDayStart(dayIndex + 1);
+    } else {
+      setScreen('final_narration');
+    }
+  }
+
+  function handleRestart() {
+    setScreen('opening_dialog');
+    setStep(0);
+    setDayIndex(0);
+    setNode('intro');
+    setHope(0);
+    setFracture(0);
+    setPlayerName('');
+    setInputName('');
+    router.push('/');
   }
 
   // ── Mini-game overlay ─────────────────────────────────────────────────────
@@ -216,11 +326,15 @@ export default function MainGamePage() {
   // ─────────────────────────────────────────────────────────────────────────
   function Box({ label, children, showScore }: { label?: string; children: React.ReactNode; showScore?: boolean }) {
     return (
-      <div className={`relative z-10 w-full bg-[rgba(8,12,50,0.97)] border-t-2 border-blue-600 px-7 py-6 ${screen !== 'name' ? 'animate-fadeUp' : ''}`}>
+      <div className={`relative z-10 w-full bg-[rgba(8,12,50,0.97)] border-t-2 border-blue-600 px-7 py-6 ${node !== 'choice1_name' ? 'animate-fadeUp' : ''}`}>
         {showScore && (
-          <div className="absolute top-3 right-5 flex items-center gap-1.5 rounded-full bg-blue-950/80 border border-blue-500/40 px-3 py-1">
-            <span className="text-yellow-300 text-xs">⭐</span>
-            <span className="text-yellow-300 text-sm font-semibold">{score}</span>
+          <div className="absolute top-3 right-5 flex items-center gap-3 rounded-full bg-blue-950/80 border border-blue-500/40 px-3 py-1">
+            <span className="flex items-center gap-1 text-cyan-300 text-sm font-semibold">
+              <span className="text-xs">✨</span>{hope}
+            </span>
+            <span className="flex items-center gap-1 text-red-300 text-sm font-semibold">
+              <span className="text-xs">💔</span>{fracture}
+            </span>
           </div>
         )}
         {label && <p className="text-[11px] tracking-widest text-blue-400 uppercase mb-2">{label}</p>}
@@ -229,28 +343,31 @@ export default function MainGamePage() {
     );
   }
 
-  function StoryBox({ textKey, next, label = 'เนื้อเรื่อง', backTo }: {
-    textKey: string; next: () => void; label?: string; backTo?: () => void;
+  function StoryBox({ textKey, next, label = 'เนื้อเรื่อง' }: {
+    textKey: string; next: () => void; label?: string;
   }) {
     return (
       <Box label={label} showScore={showScoreCounter}>
         <p className="text-[17px] leading-relaxed text-slate-100 min-h-[52px]">{TEXT[textKey]}</p>
-        <div className="mt-4 flex justify-between gap-3">
-          {backTo && (
-            <button onClick={backTo} className="btn-secondary">◀ กลับ</button>
-          )}
-          <button onClick={next} className="btn-primary ml-auto">ถัดไป ▶</button>
+        <div className="mt-4 flex justify-end">
+          <button onClick={next} className="btn-primary">ถัดไป ▶</button>
         </div>
       </Box>
     );
   }
 
-  // mini-game choice entry — แสดงเฉพาะเมื่อยังไม่ได้เล่นที่หน้านี้
-  const miniGameChoice = lastScreenPlayedMiniGame === screen ? null : {
-    label: 'มินิเกมแก้เบื่อ (ไม่เกี่ยวกับเนื้อเรื่องหลัก)',
-    color: 'yellow' as const,
-    onClick: launchRandomMiniGame,
-  };
+  function MiniGameGate({ label, onPlay }: { label: string; onPlay: () => void }) {
+    return (
+      <Box label={label} showScore={showScoreCounter}>
+        <p className="text-[17px] leading-relaxed text-slate-100 min-h-[52px]">
+          ก่อนไปต่อ ลองเล่นมินิเกมกันก่อนสักหน่อย
+        </p>
+        <div className="mt-4 flex justify-end">
+          <button onClick={onPlay} className="btn-primary">เล่นมินิเกม ▶</button>
+        </div>
+      </Box>
+    );
+  }
 
   function ChoiceBox({ label, choices }: {
     label: string;
@@ -267,6 +384,11 @@ export default function MainGamePage() {
     );
   }
 
+  // ── ตัวช่วยดึง key ของ TEXT ตามวัน + node ────────────────────────────────
+  function t(suffix: string) {
+    return `day${dayIndex}_${suffix}`;
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   //  SCREENS
   // ─────────────────────────────────────────────────────────────────────────
@@ -274,8 +396,8 @@ export default function MainGamePage() {
     <div className="relative min-h-screen flex flex-col justify-end bg-black overflow-hidden">
       <Stars />
 
-      {/* ── ① คำบรรยาย ── */}
-      {screen === 'dialog' && (
+      {/* ── คำบรรยายเปิดเกม ── */}
+      {screen === 'opening_dialog' && (
         <Box label="ข้อความ">
           <p className="text-[17px] leading-relaxed text-slate-100 min-h-[52px]">
             {displayedText}
@@ -283,243 +405,152 @@ export default function MainGamePage() {
           </p>
           <div className="mt-3 text-right">
             <button onClick={handleDialogNext} className="btn-primary">
-              {step === DIALOGS.length - 1 && !isTyping ? 'เริ่มตั้งชื่อ ▶' : 'ถัดไป ▶'}
+              {step === DIALOGS.length - 1 && !isTyping ? 'เริ่มผจญภัย ▶' : 'ถัดไป ▶'}
             </button>
           </div>
         </Box>
       )}
 
-      {/* ── ② ตั้งชื่อ ── */}
-      {screen === 'name' && (
-        <div className="relative z-10 w-full bg-[rgba(8,12,50,0.97)] border-t-2 border-blue-600 px-7 py-6">
-          <p className="text-base font-medium text-yellow-300 mb-1">ตั้งชื่อตัวละครของคุณ</p>
-          <p className="text-sm text-blue-300 mb-4">ใส่ชื่อตัวเอกของเรื่องราวด้านล่าง</p>
-          <div className="flex gap-3 items-center">
-            <input
-              ref={inputRef}
-              type="text"
-              maxLength={20}
-              value={inputName}
-              onChange={e => setInputName(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleConfirm()}
-              placeholder="ชื่อตัวละคร..."
-              autoFocus
-              className="flex-1 bg-white/5 border border-blue-600 focus:border-blue-400 rounded-lg text-slate-100 text-base px-4 py-2.5 outline-none placeholder-blue-900 transition-colors"
+      {screen === 'story' && (
+        <>
+          {/* ── เนื้อเรื่องเปิดวัน (เฉพาะวันที่มี hasIntro) ── */}
+          {node === 'intro' && (
+            <StoryBox textKey={t('intro')} label={dayConfig.dayLabel} next={() => setNode('introMiniGame')} />
+          )}
+
+          {node === 'introMiniGame' && dayConfig.introMiniGame && (
+            <MiniGameGate
+              label={dayConfig.dayLabel}
+              onPlay={() => launchMiniGame(dayConfig.introMiniGame!, 'intro')}
             />
-            <button onClick={handleConfirm} className="bg-blue-900 hover:bg-blue-700 border border-blue-500 text-yellow-300 font-medium px-6 py-2.5 rounded-lg text-base whitespace-nowrap transition-colors">
-              ยืนยัน ✓
-            </button>
-          </div>
-        </div>
+          )}
+
+          {node === 'afterIntro' && (
+            <StoryBox textKey={t('after_intro')} next={() => setNode('choice1')} />
+          )}
+
+          {/* ── ทางเลือกที่ 1 ── */}
+          {node === 'choice1' && (
+            <ChoiceBox label={`ทางเลือก – ${dayConfig.dayLabel}`} choices={[
+              { label: 'ทางเลือกที่ 1', color: 'green', onClick: handleChoice1OptA },
+              { label: 'ทางเลือกที่ 2', color: 'purple', onClick: handleChoice1OptB },
+            ]} />
+          )}
+
+          {node === 'choice1_optA' && (
+            <StoryBox textKey={t('choice1_optA_story')} next={handleChoice1OptA} />
+          )}
+
+          {node === 'choice1_optB' && !dayConfig.choice1.hasConfirm && (
+            <StoryBox
+              textKey={t('choice1_optB_story')}
+              next={() => {
+                const cfg = dayConfig.choice1;
+                if (!cfg.hasConfirm) launchMiniGame(cfg.optBMiniGame, 'choice1');
+              }}
+            />
+          )}
+
+          {node === 'choice1_confirm' && (
+            <ChoiceBox label="มั่นใจกับทางเลือกไหม" choices={[
+              { label: 'มั่นใจ', color: 'green', onClick: handleConfirmYes },
+              { label: 'ไม่มั่นใจ', color: 'red', onClick: handleConfirmNo },
+            ]} />
+          )}
+
+          {node === 'choice1_name' && (
+            <div className="relative z-10 w-full bg-[rgba(8,12,50,0.97)] border-t-2 border-blue-600 px-7 py-6">
+              <p className="text-base font-medium text-yellow-300 mb-1">ตั้งชื่อตัวละครของคุณ</p>
+              <p className="text-sm text-blue-300 mb-4">ใส่ชื่อตัวเอกของเรื่องราวด้านล่าง</p>
+              <div className="flex gap-3 items-center">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  maxLength={20}
+                  value={inputName}
+                  onChange={e => setInputName(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleConfirmName()}
+                  placeholder="ชื่อตัวละคร..."
+                  autoFocus
+                  className="flex-1 bg-white/5 border border-blue-600 focus:border-blue-400 rounded-lg text-slate-100 text-base px-4 py-2.5 outline-none placeholder-blue-900 transition-colors"
+                />
+                <button onClick={handleConfirmName} className="bg-blue-900 hover:bg-blue-700 border border-blue-500 text-yellow-300 font-medium px-6 py-2.5 rounded-lg text-base whitespace-nowrap transition-colors">
+                  ยืนยัน ✓
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── เนื้อเรื่องที่มาบรรจบกัน ── */}
+          {node === 'converge' && (
+            <StoryBox textKey={t('converge_story')} next={() => setNode('choice2')} />
+          )}
+
+          {/* ── ทางเลือกที่ 2 ── */}
+          {node === 'choice2' && (
+            <ChoiceBox label={`ทางเลือก – ${dayConfig.dayLabel}`} choices={[
+              { label: 'ทางเลือก A', color: 'green', onClick: handleChoice2OptA },
+              { label: 'ทางเลือก B', color: 'purple', onClick: handleChoice2OptB },
+            ]} />
+          )}
+
+          {node === 'choice2_optA' && (
+            <StoryBox textKey={t('choice2_optA_story')} next={handleChoice2OptA} />
+          )}
+
+          {node === 'choice2_optB' && (
+            <StoryBox
+              textKey={t('choice2_optB_story')}
+              next={() => launchMiniGame(dayConfig.choice2.optBMiniGame, 'choice2')}
+            />
+          )}
+
+          {/* ── เนื้อเรื่องก่อนจบวัน ── */}
+          {node === 'preEnding' && (
+            <StoryBox textKey={t('pre_ending')} label="ก่อนจบวัน" next={() => setNode('dayEnd')} />
+          )}
+
+          {/* ── จบวัน ── */}
+          {node === 'dayEnd' && (
+            <Box label={dayConfig.dayLabel} showScore={showScoreCounter}>
+              <p className="text-[17px] leading-relaxed text-slate-100">
+                จบ{dayConfig.dayLabel}แล้ว
+              </p>
+              <div className="mt-4 text-right">
+                <button onClick={handleDayEndNext} className="btn-primary">
+                  {dayIndex < DAY_CONFIGS.length - 1 ? 'ไปวันถัดไป ▶' : 'สรุปผล ▶'}
+                </button>
+              </div>
+            </Box>
+          )}
+        </>
       )}
 
-      {/* ── ③ ทักทาย ── */}
-      {screen === 'greeting' && (
-        <Box showScore={showScoreCounter}>
-          <p className="text-lg text-yellow-300">สวัสดี <span className="text-white font-semibold">{playerName}</span>!</p>
-          <p className="text-sm text-blue-300 mt-2">ขอให้สนุกกับการผจญภัยนะครับ</p>
+      {/* ── คำบรรยายจบเกม (ตัดสินจาก Hope vs Fracture) ── */}
+      {screen === 'final_narration' && (
+        <Box label="จบเกม" showScore>
+          <p className="text-[17px] leading-relaxed text-slate-100">
+            {TEXT[hope > fracture ? 'final_good' : 'final_bad']}
+          </p>
           <div className="mt-4 text-right">
-            <button onClick={() => setScreen('intro_story')} className="btn-primary">ถัดไป ▶</button>
+            <button onClick={() => setScreen('recap')} className="btn-primary">ถัดไป ▶</button>
           </div>
         </Box>
       )}
 
-      {/* ── ④ เนื้อเรื่องเปิดเรื่อง ── */}
-      {screen === 'intro_story' && (
-        <StoryBox textKey="intro_story" label="เรื่องราว" next={() => setScreen('first_choice')} />
-      )}
-
-      {/* ════════════════════════════════════
-          ทางเลือกที่ 1 (first_choice)
-          ════════════════════════════════════ */}
-      {screen === 'first_choice' && (
-        <ChoiceBox label="เลือกเส้นทาง" choices={[
-          { label: 'ทางเลือกที่ 1', color: 'green', onClick: () => setScreen('ch1_story_a') },
-          { label: 'ทางเลือกที่ 2', color: 'purple', onClick: () => setScreen('ch2_story_a') },
-          ...(miniGameChoice ? [miniGameChoice] : []),
-        ]} />
-      )}
-
-      {/* ─── สาย 1 ─── */}
-      {screen === 'ch1_story_a' && (
-        <StoryBox textKey="ch1_story_a" next={() => setScreen('ch1_story_b')}
-          backTo={() => setScreen('first_choice')} />
-      )}
-      {screen === 'ch1_story_b' && (
-        <StoryBox textKey="ch1_story_b" next={() => setScreen('second_choice_ch1')} />
-      )}
-
-      {/* ─── สาย 2 ─── */}
-      {screen === 'ch2_story_a' && (
-        <StoryBox textKey="ch2_story_a" next={() => setScreen('ch2_story_b')}
-          backTo={() => setScreen('first_choice')} />
-      )}
-      {screen === 'ch2_story_b' && (
-        <StoryBox textKey="ch2_story_b" next={() => setScreen('second_choice_ch2')} />
-      )}
-
-      {/* ════════════════════════════════════
-          ทางเลือกที่ 1.1  (จากสาย 1)
-          ════════════════════════════════════ */}
-      {screen === 'second_choice_ch1' && (
-        <ChoiceBox label="ทางเลือก 1.1" choices={[
-          { label: 'ทางเลือก 1.1 – A', color: 'green', onClick: () => setScreen('ch1_1_story') },
-          { label: 'ทางเลือก 1.1 – B (รวมกับ 2.1)', color: 'yellow', onClick: () => setScreen('shared_1_story') },
-          ...(miniGameChoice ? [miniGameChoice] : []),
-        ]} />
-      )}
-
-      {/* ─── สาย 1.1 A ─── */}
-      {screen === 'ch1_1_story' && (
-        <StoryBox textKey="ch1_1_story" next={() => setScreen('ch1_1_story_b')} />
-      )}
-      {screen === 'ch1_1_story_b' && (
-        <StoryBox textKey="ch1_1_story_b" next={() => setScreen('third_choice_1')} />
-      )}
-
-      {/* ─── สาย รวม 1.1+2.1 ─── */}
-      {screen === 'shared_1_story' && (
-        <StoryBox textKey="shared_1_story" next={() => setScreen('shared_1_story_b')} />
-      )}
-      {screen === 'shared_1_story_b' && (
-        <StoryBox textKey="shared_1_story_b" next={() => setScreen('third_choice_0')} />
-      )}
-
-      {/* ════════════════════════════════════
-          ทางเลือกที่ 2.1  (จากสาย 2)
-          ════════════════════════════════════ */}
-      {screen === 'second_choice_ch2' && (
-        <ChoiceBox label="ทางเลือก 2.1" choices={[
-          { label: 'ทางเลือก 2.1 – A (รวมกับ 1.1)', color: 'yellow', onClick: () => setScreen('shared_1_story') },
-          { label: 'ทางเลือก 2.1 – B', color: 'purple', onClick: () => setScreen('ch2_1_story') },
-          ...(miniGameChoice ? [miniGameChoice] : []),
-        ]} />
-      )}
-
-      {/* ─── สาย 2.1 B ─── */}
-      {screen === 'ch2_1_story' && (
-        <StoryBox textKey="ch2_1_story" next={() => setScreen('ch2_1_story_b')} />
-      )}
-      {screen === 'ch2_1_story_b' && (
-        <StoryBox textKey="ch2_1_story_b" next={() => setScreen('third_choice_2')} />
-      )}
-
-      {/* ════════════════════════════════════
-          ทางเลือก 1.2  (สาย 1.1 A)
-          ════════════════════════════════════ */}
-      {screen === 'third_choice_1' && (
-        <ChoiceBox label="ทางเลือก 1.2" choices={[
-          { label: 'ทางเลือก 1.2 – ดำเนินต่อ', color: 'green', onClick: () => setScreen('shared_2_story') },
-          ...(miniGameChoice ? [miniGameChoice] : []),
-          { label: 'ยอมแพ้', color: 'red', onClick: () => setScreen('bad_ending') },
-        ]} />
-      )}
-
-      {/* ════════════════════════════════════
-          ทางเลือก 0  (สายรวม)
-          ════════════════════════════════════ */}
-      {screen === 'third_choice_0' && (
-        <ChoiceBox label="ทางเลือก 0" choices={[
-          { label: 'ดำเนินต่อ – สาย A', color: 'green', onClick: () => setScreen('shared_2_story') },
-          { label: 'ดำเนินต่อ – สาย B', color: 'purple', onClick: () => setScreen('shared_3_story') },
-          ...(miniGameChoice ? [miniGameChoice] : []),
-          { label: 'ยอมแพ้', color: 'red', onClick: () => setScreen('bad_ending') },
-        ]} />
-      )}
-
-      {/* ════════════════════════════════════
-          ทางเลือก 2.2  (สาย 2.1 B)
-          ════════════════════════════════════ */}
-      {screen === 'third_choice_2' && (
-        <ChoiceBox label="ทางเลือก 2.2" choices={[
-          { label: 'ทางเลือก 2.2 – ดำเนินต่อ', color: 'purple', onClick: () => setScreen('shared_3_story') },
-          ...(miniGameChoice ? [miniGameChoice] : []),
-          { label: 'ยอมแพ้', color: 'red', onClick: () => setScreen('bad_ending') },
-        ]} />
-      )}
-
-      {/* ─── เนื้อเรื่องรวมก่อนสาย final ─── */}
-      {screen === 'shared_2_story' && (
-        <StoryBox textKey="shared_2_story" next={() => setScreen('fourth_choice_1')} />
-      )}
-      {screen === 'shared_3_story' && (
-        <StoryBox textKey="shared_3_story" next={() => setScreen('fourth_choice_2')} />
-      )}
-
-      {/* ════════════════════════════════════
-          ทางเลือกสุดท้าย  (final)
-          ════════════════════════════════════ */}
-      {screen === 'fourth_choice_1' && (
-        <ChoiceBox label="ทางเลือกสุดท้าย" choices={[
-          { label: 'ไปต่อ', color: 'green', onClick: () => setScreen('reflect_1') },
-          { label: 'เลือกใหม่', color: 'yellow', onClick: () => setScreen('final_choice_1') },
-          ...(miniGameChoice ? [miniGameChoice] : []),
-          { label: 'ยอมแพ้', color: 'red', onClick: () => setScreen('bad_ending') },
-        ]} />
-      )}
-      {screen === 'fourth_choice_2' && (
-        <ChoiceBox label="ทางเลือกสุดท้าย" choices={[
-          { label: 'ไปต่อ', color: 'purple', onClick: () => setScreen('reflect_2') },
-          { label: 'เลือกใหม่', color: 'yellow', onClick: () => setScreen('final_choice_2') },
-          ...(miniGameChoice ? [miniGameChoice] : []),
-          { label: 'ยอมแพ้', color: 'red', onClick: () => setScreen('bad_ending') },
-        ]} />
-      )}
-
-      {/* เลือกใหม่ → วนกลับไปทางเลือกสุดท้ายอีกครั้ง */}
-      {screen === 'final_choice_1' && (
-        <StoryBox textKey="reflect_1" label="คิดทบทวน" next={() => setScreen('fourth_choice_1')} />
-      )}
-      {screen === 'final_choice_2' && (
-        <StoryBox textKey="reflect_2" label="คิดทบทวน" next={() => setScreen('fourth_choice_2')} />
-      )}
-
-      {/* ─── reflect → pre_ending ─── */}
-      {screen === 'reflect_1' && (
-        <StoryBox textKey="reflect_1" label="ไตร่ตรอง" next={() => setScreen('pre_ending_story')} />
-      )}
-      {screen === 'reflect_2' && (
-        <StoryBox textKey="reflect_2" label="ไตร่ตรอง" next={() => setScreen('pre_ending_story')} />
-      )}
-
-      {/* ── เนื้อเรื่องก่อนจบ ── */}
-      {screen === 'pre_ending_story' && (
-        <StoryBox textKey="pre_ending_story" label="ก่อนจบเกม" next={() => setScreen('good_ending')} />
-      )}
-
-      {/* ── จบเกมแบบดี ── */}
-      {screen === 'good_ending' && (
-        <Box label="จบเกม">
-          <p className="text-[17px] leading-relaxed text-slate-100">{TEXT['good_ending']}</p>
+      {/* ── สรุปการกระทำของผู้เล่นตลอดทั้งเกม ── */}
+      {screen === 'recap' && (
+        <Box label="สรุปผล">
+          <p className="text-lg text-yellow-300">
+            {playerName ? `${playerName} ` : ''}ผ่านการผจญภัยมาได้แล้ว
+          </p>
+          <div className="mt-3 flex items-center gap-4 text-sm">
+            <span className="text-cyan-300">✨ Hope: {hope}</span>
+            <span className="text-red-300">💔 Fracture: {fracture}</span>
+          </div>
           <p className="text-sm text-blue-300 mt-3">ขอบคุณที่เล่นเกมนี้ 🌟</p>
           <div className="mt-4 text-right">
-            <button onClick={() => {
-              setScore(0);
-              setLastScreenPlayedMiniGame(null);
-              setInputName('');
-              setStep(0);
-              router.push('/');
-            }} className="btn-secondary">
-              เริ่มเกมใหม่ ↺
-            </button>
-          </div>
-        </Box>
-      )}
-
-      {/* ── ยอมแพ้จบ ── */}
-      {screen === 'bad_ending' && (
-        <Box label="จบเกม">
-          <p className="text-[17px] leading-relaxed text-slate-100">{TEXT['bad_ending']}</p>
-          <div className="mt-4 text-right">
-            <button onClick={() => {
-              setScore(0);
-              setLastScreenPlayedMiniGame(null);
-              setInputName('');
-              setStep(0);
-              router.push('/');
-            }} className="btn-secondary">
-              เริ่มใหม่อีกครั้ง ↺
-            </button>
+            <button onClick={handleRestart} className="btn-secondary">เริ่มเกมใหม่ ↺</button>
           </div>
         </Box>
       )}
