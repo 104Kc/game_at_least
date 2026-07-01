@@ -1,8 +1,13 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useAudioSettings } from "./context/AudioSettingsContext";
 import AudioSettingsButton from "./components/AudioSettingsButton";
 
 export default function Home() {
+  const { playAudio } = useAudioSettings();
+
   return (
     <div className="relative min-h-screen flex items-center justify-center">
       <Image
@@ -29,7 +34,10 @@ export default function Home() {
         />
 
         <Link href="/Each_page_of_the_main_game">
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded text-lg transition transform hover:scale-105">
+          <button
+            onClick={playAudio}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded text-lg transition transform hover:scale-105"
+          >
             Start Game
           </button>
         </Link>

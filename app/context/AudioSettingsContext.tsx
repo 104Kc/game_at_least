@@ -15,6 +15,7 @@ type AudioSettingsContextType = {
   increaseVolume: () => void;
   decreaseVolume: () => void;
   toggleMute: () => void;
+  playAudio: () => void;
 };
 
 const AudioSettingsContext = createContext<AudioSettingsContextType | null>(
@@ -45,12 +46,35 @@ export function AudioSettingsProvider({ children }: { children: ReactNode }) {
     setIsMuted((m) => !m);
   };
 
+  const playAudio = () => {
+    if (!audioRef.current) return;
+    audioRef.current.volume = isMuted ? 0 : volume;
+    audioRef.current.muted = isMuted;
+    void audioRef.current.play().catch(() => {
+      // Autoplay may be blocked until user interaction, but the click handler
+      // on the Start Game button will trigger this function.
+    });
+  };
+
   return (
     <AudioSettingsContext.Provider
-      value={{ volume, isMuted, increaseVolume, decreaseVolume, toggleMute }}
+      value={{
+        volume,
+        isMuted,
+        increaseVolume,
+        decreaseVolume,
+        toggleMute,
+        playAudio,
+      }}
     >
       {/* เพลงพื้นหลัง เล่นต่อเนื่องทุกหน้าเพราะอยู่ใน layout */}
-      <audio ref={audioRef} src="/audio/bg-music.mp3" loop autoPlay />
+      <audio
+        ref={audioRef}
+        src="/audio/【弾いてみた】八十八鍵の宇宙 Orangestar【Piano cover】.mp3"
+        loop
+        autoPlay
+        playsInline
+      />
       {children}
     </AudioSettingsContext.Provider>
   );
