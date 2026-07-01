@@ -102,6 +102,18 @@ function getBackground(dayIndex: number, node: StoryNode): string {
   return DAY_BACKGROUNDS[dayIndex]?.[node] ?? BG.bedroom;
 }
 
+const STORY_NODE_TEXT_KEY: Partial<Record<StoryNode, string>> = {
+  intro: 'intro',
+  afterIntro: 'after_intro',
+  atSchool: 'at_school',
+  choice1_optA: 'choice1_optA_story',
+  choice1_optB: 'choice1_optB_story',
+  converge: 'converge_story',
+  choice2_optA: 'choice2_optA_story',
+  choice2_optB: 'choice2_optB_story',
+  preEnding: 'pre_ending',
+};
+
 // ── คำบรรยายเปิดเกม (typewriter) ───────────────────────────────────────────
 const DIALOGS = [
   'สวัสดีทุกคนที่มีความเครียด เกมนี้มีแนวคิดเป็นเกมเนื้อเรื่องที่จะช่วยให้ทุกคนคลายเครียด',
@@ -279,6 +291,31 @@ export default function MainGamePage() {
       inputRef.current?.focus();
     }
   }, [screen, node]);
+
+  useEffect(() => {
+    if (screen === 'opening_dialog') return;
+
+    let text: string | null = null;
+    if (screen === 'story') {
+      const suffix = STORY_NODE_TEXT_KEY[node];
+      if (suffix) {
+        text = TEXT[`day${dayIndex}_${suffix}`];
+      }
+    } else if (screen === 'final_narration') {
+      text = TEXT[hope > fracture ? 'final_good' : 'final_bad'];
+    }
+
+    if (text) {
+      startTyping(text);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      setDisplayedText('');
+      setIsTyping(false);
+    }
+  }, [screen, node, dayIndex, hope, fracture]);
 
   function startTyping(text: string) {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -499,11 +536,28 @@ export default function MainGamePage() {
   function StoryBox({ textKey, next, label = 'เนื้อเรื่อง', nextLabel = NEXT_LABELS.default }: {
     textKey: string; next: () => void; label?: string; nextLabel?: string;
   }) {
+    const storyText = TEXT[textKey];
+
+    const handleClick = () => {
+      if (isTyping) {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        setDisplayedText(storyText);
+        setIsTyping(false);
+        return;
+      }
+      next();
+    };
+
     return (
       <Box label={label} showScore={showScoreCounter}>
-        <p className="text-[17px] leading-relaxed text-slate-100 min-h-[52px]">{TEXT[textKey]}</p>
+        <p className="text-[17px] leading-relaxed text-slate-100 min-h-[52px]">
+          {displayedText || storyText}
+        </p>
         <div className="mt-4 flex justify-end">
-          <NextButton onClick={next} label={nextLabel} />
+          <NextButton onClick={handleClick} label={nextLabel} />
         </div>
       </Box>
     );
@@ -733,14 +787,12 @@ export default function MainGamePage() {
 
       {/* ── คำบรรยายจบเกม (คำนวณค่า Hope / Fracture) ── */}
       {screen === 'final_narration' && (
-        <Box label="จบเกม" showScore>
-          <p className="text-[17px] leading-relaxed text-slate-100">
-            {TEXT[hope > fracture ? 'final_good' : 'final_bad']}
-          </p>
-          <div className="mt-4 text-right">
-            <NextButton onClick={() => setScreen('recap')} label={NEXT_LABELS.final} />
-          </div>
-        </Box>
+        <StoryBox
+          textKey={hope > fracture ? 'final_good' : 'final_bad'}
+          label="จบเกม"
+          next={() => setScreen('recap')}
+          nextLabel={NEXT_LABELS.final}
+        />
       )}
 
       {/* ── สรุปผล (Recap การกระทำของผู้เล่นตลอดทั้งเกม) ── */}
