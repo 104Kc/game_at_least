@@ -9,25 +9,98 @@ import MiniGames5 from '../Mini_games_5/Mini_games_5';
 import AudioSettingsButton from '../components/AudioSettingsButton';
 
 // ─────────────────────────────────────────────
-//  โครงสร้างนี้สร้างตาม "ข้อมูลการทำงานของเส้นทางเนื้อเรื่อง.drawio"
-//  เกมแบ่งเป็น 3 วัน วันละ 2 ทางเลือก (choice1 / choice2)
+//  โครงสร้างนี้สร้างตาม
+//  "ข้อมูลการทำงานของเส้นทางเนื้อเรื่อง + ภาพ.drawio" (เวอร์ชันล่าสุด)
 //
-//  วันที่ 1:
-//    - choice1: มีขั้น "มั่นใจกับทางเลือกไหม" และเป็นจุดตั้งชื่อผู้เล่น
-//    - choice2: optB → มินิเกม (Mini_games_2) → Hope +1
+//  แก้ไขจากเวอร์ชันก่อนหน้า 3 เรื่องหลัก:
+//   1) สลับมินิเกมให้ตรงผัง
+//      - วันที่ 1 (ช่วงเปิดเรื่อง / introMiniGame)  -> Mini_games_4
+//      - วันที่ 2 (ทางเลือกที่ 1 / optB)             -> Mini_games_3
+//      - วันที่ 1 (ทางเลือกที่ 2 / optB)             -> Mini_games_2  (เหมือนเดิม)
+//      - วันที่ 2 (ทางเลือกที่ 2 / optB)             -> Mini_games_5  (เหมือนเดิม)
+//      - วันที่ 3 ไม่มีมินิเกมเลย                    -> 'none'         (เหมือนเดิม)
 //
-//  วันที่ 2:
-//    - choice1: optB → มินิเกม (Mini_games_4) → Hope +1
-//    - choice2: optB → มินิเกม (Mini_games_5) → Hope +1
+//   2) เพิ่มฉาก "เนื้อเรื่องทางเลือกที่ 1" (optA) ที่หายไป
+//      ผังจริงทุกทางเลือก A (ทั้ง 3 วัน x ทั้ง 2 จุดเลือก) จะมีการโชว์
+//      เนื้อเรื่องสั้นๆ ก่อน แล้วค่อยได้ Fracture +1 ไม่ใช่กระโดดรับแต้มทันที
+//      (ปุ่ม "ไม่มั่นใจ" ในวันที่ 1 ก็จะย้อนไปที่ฉากเดียวกันนี้ตามผัง)
 //
-//  วันที่ 3:
-//    - choice1: optB → เนื้อเรื่อง → Hope +1 (ไม่มีมินิเกม)
-//    - choice2: optB → เนื้อเรื่อง → Hope +1 (ไม่มีมินิเกม)
+//   3) เพิ่มฉากเปิดวันที่ยังไม่มีในโค้ดเดิม
+//      - วันที่ 2: "เริ่มเนื้อเรื่องวันที่2" -> "เนื้อเรื่องตอนอยู่โรงเรียน" -> ทางเลือก
+//      - วันที่ 3: "เริ่มเนื้อเรื่องวันที่3" -> ทางเลือก
 //
-//  ทางเลือก A ทุกจุด → Fracture +1 (ไปต่อทันที ไม่มี story node)
-//  ทางเลือก B ทุกจุด → Hope +1 (วันที่ 1–2 ผ่านมินิเกม, วันที่ 3 ตรง)
-//  จบวันที่ 3 → เปรียบ Hope กับ Fracture → Good / Bad Ending
+//   4) เพิ่มระบบ "ฉากหลัง" (background) ตามภาพที่ผังระบุไว้ในแต่ละจุด
+//      ใช้ไฟล์จาก public/images/Daily story background images/
 // ─────────────────────────────────────────────
+
+// ── ภาพฉากหลัง (ตามชื่อไฟล์จริงใน public/images/Daily story background images) ──
+const IMG_BASE = '/images/Daily story background images/';
+const BG = {
+  bedroom: encodeURI(IMG_BASE + 'ห้องนอน.jpg'),                     // ภาพห้องนอน
+  classroomDay1: encodeURI(IMG_BASE + 'ห้องเรียนวันที่ 1.jpg'),        // ภาพห้องเรียนวันที่ 1
+  courtyardDay2: encodeURI(IMG_BASE + 'ลานกว้างวันที่2.jpg'),          // ภาพลานกว้างวันที่ 2 (ตอนกลางวัน)
+  courtyardEveningDay2: encodeURI(IMG_BASE + 'ลานกว้างตอนเย็นวันที่2.jpg'), // ภาพลานกว้างตอนเย็นวันที่ 2
+  gardenDay2: encodeURI(IMG_BASE + 'สวนวันที่2.jpg'),                 // ภาพสวนวันที่ 2
+  treeSpotDay3: encodeURI(IMG_BASE + 'จุดสงบใต้ต้นไม้วันที่3.jpg'),     // ภาพจุดสงบใต้ต้นไม้วันที่ 3
+  cafeteriaDay3: encodeURI(IMG_BASE + 'โรงอาหารวันที่3.jpeg'),         // ภาพโรงอาหารวันที่ 3 (นามสกุล .jpeg)
+} as const;
+
+// ── ฉากหลังของ "ทุกโหนด" ในทุกวัน ระบุตรงๆ ทีละจุด (ไม่พึ่งการคงค่าเดิม) ──
+// เพื่อให้ทุกทางแยก (optA / optB / confirm / ตั้งชื่อ / minigame gate / preEnding ฯลฯ)
+// ที่อยู่ใน "ช่วงฉากเดียวกัน" ใช้ภาพพื้นหลังตรงกันเสมอ ไม่มีจุดไหนหลุดหรือเพี้ยน
+// จุดที่ .drawio ระบุภาพไว้ชัดเจน (เปลี่ยนฉาก) กับจุดที่ .drawio ไม่ได้ระบุ (อยู่ในช่วง
+// เดียวกับฉากก่อนหน้า) ถูกเขียนออกมาให้ครบทุก node ในนี้แล้ว
+const DAY_BACKGROUNDS: Record<number, Partial<Record<StoryNode, string>>> = {
+  // ── วันที่ 1: ห้องนอน -> ห้องเรียนวันที่ 1 (ช่วงทางเลือกที่ 1) -> ห้องนอน (ช่วงทางเลือกที่ 2) ──
+  0: {
+    intro: BG.bedroom,
+    introMiniGame: BG.bedroom,
+    afterIntro: BG.bedroom,
+    choice1: BG.classroomDay1,
+    choice1_optA: BG.classroomDay1,
+    choice1_optB: BG.classroomDay1,
+    choice1_confirm: BG.classroomDay1,
+    choice1_name: BG.classroomDay1,
+    converge: BG.bedroom,
+    choice2: BG.bedroom,
+    choice2_optA: BG.bedroom,
+    choice2_optB: BG.bedroom,
+    preEnding: BG.bedroom,
+    dayEnd: BG.bedroom,
+  },
+  // ── วันที่ 2: ห้องนอน -> ลานกว้าง -> ลานกว้างตอนเย็น (ช่วงทางเลือกที่ 1) -> สวน (ช่วงทางเลือกที่ 2) ──
+  1: {
+    intro: BG.bedroom,
+    atSchool: BG.courtyardDay2,
+    choice1: BG.courtyardEveningDay2,
+    choice1_optA: BG.courtyardEveningDay2,
+    choice1_optB: BG.courtyardEveningDay2,
+    converge: BG.gardenDay2,
+    choice2: BG.gardenDay2,
+    choice2_optA: BG.gardenDay2,
+    choice2_optB: BG.gardenDay2,
+    preEnding: BG.gardenDay2,
+    dayEnd: BG.gardenDay2,
+  },
+  // ── วันที่ 3: ห้องนอน -> จุดสงบใต้ต้นไม้ (ช่วงทางเลือกที่ 1) -> ห้องนอน (ช่วงทางเลือกที่ 2) ──
+  // หมายเหตุ: มีเพียง choice1_optA จุดเดียวที่ .drawio ระบุภาพแยกเป็นโรงอาหาร
+  2: {
+    intro: BG.bedroom,
+    choice1: BG.treeSpotDay3,
+    choice1_optA: BG.cafeteriaDay3,
+    choice1_optB: BG.treeSpotDay3,
+    converge: BG.bedroom,
+    choice2: BG.bedroom,
+    choice2_optA: BG.bedroom,
+    choice2_optB: BG.bedroom,
+    preEnding: BG.bedroom,
+    dayEnd: BG.bedroom,
+  },
+};
+
+function getBackground(dayIndex: number, node: StoryNode): string {
+  return DAY_BACKGROUNDS[dayIndex]?.[node] ?? BG.bedroom;
+}
 
 // ── คำบรรยายเปิดเกม (typewriter) ───────────────────────────────────────────
 const DIALOGS = [
@@ -37,27 +110,37 @@ const DIALOGS = [
 ];
 
 // ── เนื้อเรื่องทั้งหมด (แก้ไขข้อความตรงนี้ได้เลย) ───────────────────────────
-// หมายเหตุ: ไม่มี *_optA_story เพราะทางเลือก A กระโดดไปรับ Fracture โดยตรง
+// หมายเหตุ: ตอนนี้มี *_optA_story ครบทุกวันแล้ว เพราะตามผัง .drawio
+// ทางเลือก A ก็มีฉากเนื้อเรื่องของตัวเองก่อนได้รับ Fracture เช่นกัน
 const TEXT: Record<string, string> = {
-  // ── วันที่ 1 ──────────────────────────────────────────────────────────
-  day0_intro:              '[ เนื้อเรื่องเปิดเรื่องวันที่ 1 ]',
+  // ── วันที่ 1 (ฉากหลัง: ห้องนอน -> ห้องเรียนวันที่ 1 -> ห้องนอน) ──────────
+  day0_intro:              '[ เนื้อเรื่องเปิดเรื่องวันที่ 1 — ห้องนอน ]',
   day0_after_intro:        '[ เนื้อเรื่องหลังจบมินิเกมแรก ]',
-  day0_choice1_optB_story: '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 1) ]',
-  day0_converge_story:     '[ เนื้อเรื่องที่มาบรรจบกัน (วันที่ 1) ]',
+  day0_choice1_optA_story: '[ เนื้อเรื่องทางเลือกที่ 1 (วันที่ 1) — ห้องเรียน ]',
+  day0_choice1_optB_story: '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 1) — ห้องเรียน ]',
+  day0_converge_story:     '[ เนื้อเรื่องที่มาบรรจบกัน (วันที่ 1) — กลับห้องนอน ]',
+  day0_choice2_optA_story: '[ เนื้อเรื่องทางเลือก A รอบสอง (วันที่ 1) ]',
   day0_choice2_optB_story: '[ เนื้อเรื่องทางเลือก B รอบสอง (วันที่ 1) ]',
   day0_pre_ending:         '[ เนื้อเรื่องก่อนจบวันที่ 1 ]',
 
-  // ── วันที่ 2 ──────────────────────────────────────────────────────────
-  day1_choice1_optB_story: '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 2) ]',
-  day1_converge_story:     '[ เนื้อเรื่องที่มาบรรจบกัน (วันที่ 2) ]',
-  day1_choice2_optB_story: '[ เนื้อเรื่องทางเลือก B รอบสอง (วันที่ 2) ]',
-  day1_pre_ending:         '[ เนื้อเรื่องก่อนจบวันที่ 2 ]',
+  // ── วันที่ 2 (ฉากหลัง: ห้องนอน -> ลานกว้าง -> ลานกว้างตอนเย็น -> สวน) ───
+  day1_intro:               '[ เริ่มเนื้อเรื่องวันที่ 2 — ห้องนอน ]',
+  day1_at_school:           '[ เนื้อเรื่องตอนอยู่โรงเรียน — ลานกว้าง ]',
+  day1_choice1_optA_story:  '[ เนื้อเรื่องทางเลือกที่ 1 (วันที่ 2) ]',
+  day1_choice1_optB_story:  '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 2) ]',
+  day1_converge_story:      '[ เนื้อเรื่องที่มาบรรจบกัน (วันที่ 2) — สวน ]',
+  day1_choice2_optA_story:  '[ เนื้อเรื่องทางเลือก A รอบสอง (วันที่ 2) ]',
+  day1_choice2_optB_story:  '[ เนื้อเรื่องทางเลือก B รอบสอง (วันที่ 2) ]',
+  day1_pre_ending:          '[ เนื้อเรื่องก่อนจบวันที่ 2 ]',
 
-  // ── วันที่ 3 ──────────────────────────────────────────────────────────
-  day2_choice1_optB_story: '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 3) ]',
-  day2_converge_story:     '[ เนื้อเรื่องที่มาบรรจบกัน (วันที่ 3) ]',
-  day2_choice2_optB_story: '[ เนื้อเรื่องทางเลือก B รอบสอง (วันที่ 3) ]',
-  day2_pre_ending:         '[ เนื้อเรื่องก่อนจบวันที่ 3 ]',
+  // ── วันที่ 3 (ฉากหลัง: ห้องนอน -> จุดสงบใต้ต้นไม้ -> (โรงอาหาร) -> ห้องนอน) ─
+  day2_intro:               '[ เริ่มเนื้อเรื่องวันที่ 3 — ห้องนอน ]',
+  day2_choice1_optA_story:  '[ เนื้อเรื่องทางเลือกที่ 1 (วันที่ 3) — โรงอาหาร ]',
+  day2_choice1_optB_story:  '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 3) ]',
+  day2_converge_story:      '[ เนื้อเรื่องที่มาบรรจบกัน (วันที่ 3) — กลับห้องนอน ]',
+  day2_choice2_optA_story:  '[ เนื้อเรื่องทางเลือก A รอบสอง (วันที่ 3) ]',
+  day2_choice2_optB_story:  '[ เนื้อเรื่องทางเลือก B รอบสอง (วันที่ 3) ]',
+  day2_pre_ending:          '[ เนื้อเรื่องก่อนจบวันที่ 3 ]',
 
   // ── จบเกม ────────────────────────────────────────────────────────────
   final_good: '[ คำบรรยายจบเกมแบบ Good Ending 🎉 ]',
@@ -77,41 +160,37 @@ type Choice1Config =
 
 type DayConfig = {
   dayLabel: string;
-  hasIntro: boolean;
-  introMiniGame?: MiniGameKey;
+  introMiniGame?: MiniGameKey; // มีเฉพาะวันที่ 1
+  hasSchoolIntro?: boolean;    // มีเฉพาะวันที่ 2 (ฉาก "เนื้อเรื่องตอนอยู่โรงเรียน")
   choice1: Choice1Config;
   choice2: { optBMiniGame: MiniGameKey | 'none' };
 };
 
 // ─────────────────────────────────────────────
-//  DAY CONFIGS
+//  DAY CONFIGS (ตรงตาม .drawio)
 // ─────────────────────────────────────────────
 const DAY_CONFIGS: DayConfig[] = [
   {
     dayLabel: 'วันที่ 1',
-    hasIntro: true,
-    introMiniGame: 'Mini_games_3',
+    introMiniGame: 'Mini_games_4', // แก้ตามผัง (เดิมเคยเป็น Mini_games_3)
     choice1: { hasConfirm: true },
     choice2: { optBMiniGame: 'Mini_games_2' },
   },
   {
     dayLabel: 'วันที่ 2',
-    hasIntro: false,
-    choice1: { hasConfirm: false, optBMiniGame: 'Mini_games_4' },
+    hasSchoolIntro: true,
+    choice1: { hasConfirm: false, optBMiniGame: 'Mini_games_3' }, // แก้ตามผัง (เดิมเคยเป็น Mini_games_4)
     choice2: { optBMiniGame: 'Mini_games_5' },
   },
   {
     dayLabel: 'วันที่ 3',
-    hasIntro: false,
-    // ตาม drawio: optB ทั้งสองช่วงไม่มีมินิเกม → Hope +1 ตรงๆ
+    // ตาม .drawio: optB ทั้งสองช่วงไม่มีมินิเกม -> Hope +1 ตรงๆ
     choice1: { hasConfirm: false, optBMiniGame: 'none' },
     choice2: { optBMiniGame: 'none' },
   },
 ];
 
 // ── ข้อความบนปุ่ม "ถัดไป" ของแต่ละ node ──────────────────────────────────
-// แก้ไขข้อความบนปุ่มถัดไปได้ที่นี่ (key = "day{index}_{suffix}" เหมือน TEXT
-// หรือใช้ key พิเศษสำหรับหน้าที่ไม่ผูกกับวัน เช่น 'dialog', 'dayEnd', 'final')
 const NEXT_LABELS: Record<string, string> = {
   dialog:      'ถัดไป ▶',
   dialogStart: 'เริ่มผจญภัย ▶',
@@ -123,18 +202,19 @@ const NEXT_LABELS: Record<string, string> = {
   default:     'ถัดไป ▶',
 };
 
-// หมายเหตุ: ลบ 'choice1_optA' | 'choice1_miniGame' | 'choice2_optA' | 'choice2_miniGame'
-// ออกจาก StoryNode เพราะไม่มี setNode() เรียกใช้ค่าเหล่านี้เลย
 type StoryNode =
   | 'intro'
   | 'introMiniGame'
   | 'afterIntro'
+  | 'atSchool'        // ใหม่: วันที่ 2 เท่านั้น
   | 'choice1'
+  | 'choice1_optA'    // ใหม่: ฉากเนื้อเรื่องก่อนรับ Fracture (ทุกวัน)
   | 'choice1_optB'
   | 'choice1_confirm'
   | 'choice1_name'
   | 'converge'
   | 'choice2'
+  | 'choice2_optA'    // ใหม่: ฉากเนื้อเรื่องก่อนรับ Fracture (ทุกวัน)
   | 'choice2_optB'
   | 'preEnding'
   | 'dayEnd';
@@ -157,6 +237,9 @@ export default function MainGamePage() {
   // ── ค่าคะแนน ─────────────────────────────────────────────────────────────
   const [hope, setHope] = useState(0);
   const [fracture, setFracture] = useState(0);
+
+  // ── ฉากหลัง ──────────────────────────────────────────────────────────────
+  const currentBg = getBackground(dayIndex, node);
 
   // ── คำบรรยายเปิดเกม ──────────────────────────────────────────────────────
   const [step, setStep] = useState(0);
@@ -229,10 +312,22 @@ export default function MainGamePage() {
     }
   }
 
+  // ทุกวันเริ่มที่ node 'intro' เสมอ (วันที่ 1 มีมินิเกมเปิดเรื่อง,
+  // วันที่ 2 มีฉาก "อยู่โรงเรียน" ต่อจาก intro, วันที่ 3 เข้า choice1 ต่อทันที)
   function goToDayStart(idx: number) {
     setDayIndex(idx);
     setScreen('story');
-    setNode(DAY_CONFIGS[idx].hasIntro ? 'intro' : 'choice1');
+    setNode('intro');
+  }
+
+  function handleIntroNext() {
+    if (dayConfig.introMiniGame) {
+      setNode('introMiniGame');
+    } else if (dayConfig.hasSchoolIntro) {
+      setNode('atSchool');
+    } else {
+      setNode('choice1');
+    }
   }
 
   function launchMiniGame(key: MiniGameKey, source: MiniGameSource) {
@@ -257,8 +352,12 @@ export default function MainGamePage() {
   }
 
   // ── ทางเลือกที่ 1 ─────────────────────────────────────────────────────────
-  // optA: Fracture +1 → converge (ตรงทันที ไม่มี story node)
+  // optA: โชว์เนื้อเรื่อง "เนื้อเรื่องทางเลือกที่ 1" ก่อน แล้วค่อยได้ Fracture +1
   function handleChoice1OptA() {
+    setNode('choice1_optA');
+  }
+
+  function handleChoice1OptAContinue() {
     setFracture(f => f + 1);
     setNode('converge');
   }
@@ -276,9 +375,10 @@ export default function MainGamePage() {
     setNode('choice1_name');
   }
 
+  // ตามผัง: "ไม่มั่นใจ" จะย้อนไปที่ฉาก "เนื้อเรื่องทางเลือกที่ 1" เดียวกับ optA
+  // แล้วได้ Fracture +1 เหมือนกัน
   function handleConfirmNo() {
-    setFracture(f => f + 1);
-    setNode('converge');
+    setNode('choice1_optA');
   }
 
   function handleConfirmName() {
@@ -290,8 +390,12 @@ export default function MainGamePage() {
   }
 
   // ── ทางเลือกที่ 2 ─────────────────────────────────────────────────────────
-  // optA: Fracture +1 → preEnding (ตรงทันที ไม่มี story node)
+  // optA: โชว์เนื้อเรื่องก่อน แล้วค่อยได้ Fracture +1
   function handleChoice2OptA() {
+    setNode('choice2_optA');
+  }
+
+  function handleChoice2OptAContinue() {
     setFracture(f => f + 1);
     setNode('preEnding');
   }
@@ -346,10 +450,6 @@ export default function MainGamePage() {
   // ─────────────────────────────────────────────────────────────────────────
   //  UI helpers
   // ─────────────────────────────────────────────────────────────────────────
-
-  // ปุ่ม "ถัดไป" กลาง ที่รับประกันว่ามองเห็นได้เสมอ ไม่ว่าคลาส btn-primary
-  // จากไฟล์ CSS ภายนอกจะโหลดมาหรือไม่ก็ตาม (มีสี/ขอบ/เงาในตัวเอง)
-  // และแก้ข้อความบนปุ่มได้ผ่าน prop `label`
   function NextButton({
     onClick,
     label = NEXT_LABELS.default,
@@ -396,7 +496,6 @@ export default function MainGamePage() {
     );
   }
 
-  // เพิ่ม prop `nextLabel` เพื่อแก้ข้อความบนปุ่มถัดไปของแต่ละหน้าเนื้อเรื่องได้
   function StoryBox({ textKey, next, label = 'เนื้อเรื่อง', nextLabel = NEXT_LABELS.default }: {
     textKey: string; next: () => void; label?: string; nextLabel?: string;
   }) {
@@ -410,7 +509,6 @@ export default function MainGamePage() {
     );
   }
 
-  // เพิ่ม prop `playLabel` เพื่อแก้ข้อความบนปุ่มเล่นมินิเกมได้เช่นกัน
   function MiniGameGate({ label, onPlay, playLabel = NEXT_LABELS.miniGameGate }: {
     label: string; onPlay: () => void; playLabel?: string;
   }) {
@@ -450,7 +548,16 @@ export default function MainGamePage() {
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <div className="relative min-h-screen flex flex-col justify-end bg-black overflow-hidden">
-      <Stars />
+      {/* ── ฉากหลัง (เปลี่ยนตามจุดที่ .drawio ระบุ) ── แสดงเฉพาะช่วงเดินเนื้อเรื่อง */}
+      {screen === 'story' && (
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-[background-image] duration-500"
+          style={{ backgroundImage: `url(${currentBg})` }}
+        >
+          <div className="absolute inset-0 bg-black/55" />
+        </div>
+      )}
+      {screen !== 'story' && <Stars />}
 
       <div className="fixed top-4 right-4 z-50">
         <AudioSettingsButton />
@@ -474,11 +581,12 @@ export default function MainGamePage() {
 
       {screen === 'story' && (
         <>
-          {/* ── เปิดวัน ── */}
+          {/* ── เปิดวัน (ฉากที่ 1 ของทุกวัน) ── */}
           {node === 'intro' && (
-            <StoryBox textKey={t('intro')} label={dayConfig.dayLabel} next={() => setNode('introMiniGame')} />
+            <StoryBox textKey={t('intro')} label={dayConfig.dayLabel} next={handleIntroNext} />
           )}
 
+          {/* ── มินิเกมเปิดเรื่อง (มีเฉพาะวันที่ 1 -> Mini_games_4) ── */}
           {node === 'introMiniGame' && dayConfig.introMiniGame && (
             <MiniGameGate
               label={dayConfig.dayLabel}
@@ -490,6 +598,11 @@ export default function MainGamePage() {
             <StoryBox textKey={t('after_intro')} next={() => setNode('choice1')} />
           )}
 
+          {/* ── ฉาก "เนื้อเรื่องตอนอยู่โรงเรียน" (มีเฉพาะวันที่ 2) ── */}
+          {node === 'atSchool' && (
+            <StoryBox textKey={t('at_school')} next={() => setNode('choice1')} />
+          )}
+
           {/* ── ทางเลือกที่ 1 ── */}
           {node === 'choice1' && (
             <ChoiceBox label={`ทางเลือก – ${dayConfig.dayLabel}`} choices={[
@@ -499,10 +612,18 @@ export default function MainGamePage() {
           )}
 
           {/*
+            choice1_optA: ฉากเนื้อเรื่องของทางเลือกที่ 1 (ทุกวัน) — โชว์ก่อนได้ Fracture +1
+            ปุ่ม "ไม่มั่นใจ" ในวันที่ 1 ก็จะวนมาที่ฉากนี้เหมือนกันตามผัง
+          */}
+          {node === 'choice1_optA' && (
+            <StoryBox textKey={t('choice1_optA_story')} next={handleChoice1OptAContinue} />
+          )}
+
+          {/*
             choice1_optB:
             - วันที่ 1: ไม่ถึง node นี้ (ข้ามไป choice1_confirm แทน)
-            - วันที่ 2: แสดงเนื้อเรื่อง → เปิดมินิเกม → Hope +1
-            - วันที่ 3: แสดงเนื้อเรื่อง → Hope +1 ตรงๆ
+            - วันที่ 2: แสดงเนื้อเรื่อง -> เปิดมินิเกม (Mini_games_3) -> Hope +1
+            - วันที่ 3: แสดงเนื้อเรื่อง -> Hope +1 ตรงๆ (ไม่มีมินิเกม)
           */}
           {node === 'choice1_optB' && !dayConfig.choice1.hasConfirm && (
             <StoryBox
@@ -563,11 +684,16 @@ export default function MainGamePage() {
             ]} />
           )}
 
+          {/* ── choice2_optA: ฉากเนื้อเรื่องของทางเลือก A (ทุกวัน) ก่อนได้ Fracture +1 ── */}
+          {node === 'choice2_optA' && (
+            <StoryBox textKey={t('choice2_optA_story')} next={handleChoice2OptAContinue} />
+          )}
+
           {/*
             choice2_optB:
-            - วันที่ 1: แสดงเนื้อเรื่อง → เปิดมินิเกม (Mini_games_2) → Hope +1
-            - วันที่ 2: แสดงเนื้อเรื่อง → เปิดมินิเกม (Mini_games_5) → Hope +1
-            - วันที่ 3: แสดงเนื้อเรื่อง → Hope +1 ตรงๆ
+            - วันที่ 1: แสดงเนื้อเรื่อง -> เปิดมินิเกม (Mini_games_2) -> Hope +1
+            - วันที่ 2: แสดงเนื้อเรื่อง -> เปิดมินิเกม (Mini_games_5) -> Hope +1
+            - วันที่ 3: แสดงเนื้อเรื่อง -> Hope +1 ตรงๆ (ไม่มีมินิเกม)
           */}
           {node === 'choice2_optB' && (
             <StoryBox
@@ -605,7 +731,7 @@ export default function MainGamePage() {
         </>
       )}
 
-      {/* ── คำบรรยายจบเกม ── */}
+      {/* ── คำบรรยายจบเกม (คำนวณค่า Hope / Fracture) ── */}
       {screen === 'final_narration' && (
         <Box label="จบเกม" showScore>
           <p className="text-[17px] leading-relaxed text-slate-100">
@@ -617,7 +743,7 @@ export default function MainGamePage() {
         </Box>
       )}
 
-      {/* ── สรุปผล ── */}
+      {/* ── สรุปผล (Recap การกระทำของผู้เล่นตลอดทั้งเกม) ── */}
       {screen === 'recap' && (
         <Box label="สรุปผล">
           <p className="text-lg text-yellow-300">
@@ -639,7 +765,7 @@ export default function MainGamePage() {
   );
 }
 
-/* ── Stars ── */
+/* ── Stars (ใช้ตอนไม่มีฉากหลังภาพ เช่น หน้าคำบรรยายเปิด/ปิดเกม) ── */
 function Stars() {
   const stars = useMemo(() => Array.from({ length: 80 }, (_, i) => ({
     id: i,
