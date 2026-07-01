@@ -114,11 +114,51 @@ const STORY_NODE_TEXT_KEY: Partial<Record<StoryNode, string>> = {
   preEnding: 'pre_ending',
 };
 
+function splitStorySegments(text: string): string[] {
+  const paragraphs = text
+    .split(/\n{2,}/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (paragraphs.length > 1) return paragraphs;
+
+  const maxLength = 240;
+  const trimmed = text.trim();
+  if (trimmed.length <= maxLength) return [trimmed];
+
+  const chunks: string[] = [];
+  let remainder = trimmed;
+
+  while (remainder.length > maxLength) {
+    const slice = remainder.slice(0, maxLength);
+    const boundary = Math.max(
+      slice.lastIndexOf('。'),
+      slice.lastIndexOf('.'),
+      slice.lastIndexOf('!'),
+      slice.lastIndexOf('?'),
+      slice.lastIndexOf(' '),
+    );
+    const cut = boundary > 0 ? boundary + 1 : maxLength;
+    chunks.push(remainder.slice(0, cut).trim());
+    remainder = remainder.slice(cut).trim();
+  }
+
+  if (remainder) chunks.push(remainder);
+  return chunks;
+}
+
 // ── คำบรรยายเปิดเกม (typewriter) ───────────────────────────────────────────
 const DIALOGS = [
-  'สวัสดีทุกคนที่มีความเครียด เกมนี้มีแนวคิดเป็นเกมเนื้อเรื่องที่จะช่วยให้ทุกคนคลายเครียด',
-  'และยังมีมินิเกมเล็กๆ น้อยๆ ให้เล่นด้วย',
-  'เอาละ ตอนนี้มาเริ่มการผจญภัยกันเลย',
+  'มันคืออีกหนึ่งวัน',
+  'เป็นบรรยากาศที่ไม่ค่อยดีนักสำหรับวันใหม่',
+  'ไม่มีเสียงนกร้อง',
+  'ไม่มีแม้แต่แสงสว่างที่ลอดผ่านมาให้คุณเห็น',
+  'ไม่มีแม้แต่แสงสว่างที่ลอดผ่านมาให้คุณเห็น',
+  'มีเพียงเสียงรบกวนแปลกๆที่ดังอย่างต่อเนื่อง',
+  'ต้นตอของมันอยู่ไม่ไกลมากจากตัวคุณมากนัก',
+  'โทรศัพท์ที่วางอยู่บนลิ้นชักข้างหัวเตียง',
+  'คุณขยับตัวเพียงเล็กน้อยจนเอื้อมือถึงมันได้สำเร็จ',
+  'คุณปิดเสียงนาฬิกาปลุก',
 ];
 
 // ── เนื้อเรื่องทั้งหมด (แก้ไขข้อความตรงนี้ได้เลย) ───────────────────────────
@@ -126,7 +166,43 @@ const DIALOGS = [
 // ทางเลือก A ก็มีฉากเนื้อเรื่องของตัวเองก่อนได้รับ Fracture เช่นกัน
 const TEXT: Record<string, string> = {
   // ── วันที่ 1 (ฉากหลัง: ห้องนอน -> ห้องเรียนวันที่ 1 -> ห้องนอน) ──────────
-  day0_intro:              '[ เนื้อเรื่องเปิดเรื่องวันที่ 1 — ห้องนอน ]',
+  day0_intro: `ความสงบกลับมาอีกครั้ง
+คุณพลิกตัวกลับไปในที่จุดเดิม
+ดวงตาทั้งสองข้างของคุณยังคงลังเลที่จะเปิดออก
+คุณรู้ดี ตอนนี้ไม่ใช่เวลาที่จะนิ่งเฉยและปล่อยเวลาให้ผ่านไป
+ในตอนนั้นคุณได้ตัดสินใจ
+คุณลุกขึ้น
+คุณสูดหายใจเข้าลึกๆ
+พยายามสั่งการร่างกายส่วนบนให้ขยับ
+
+ทว่า
+สิ่งที่เกิดขึ้นกลับเป็นตัวของคุณที่แค่พลิกไปด้านข้างเท่านั้น
+คุณรู้สึกว่าร่างกายหนักอึ้งราวกับเหล็กหลายสิบตัน
+แต่ในขณะเดียวกันก็ยังสามารถขยับแขนขาได้เป็นปกติ
+เป็นความรู้สึกที่อธิบายไม่ได้
+ลุกขึ้น
+
+คุณพยายามอีกครั้ง
+แต่ยิ่งคุณคิดที่จะทำมัน ก็ยิ่งรู้สึกว่ามีบางอย่างกดคุณเอาไว้
+คุณยกแขนขึ้นมาก่ายหน้าผากตัวเอง ก่อนจะพยายามยืดเส้นเบาๆ
+คุณสูดหายใจอีกครั้งและลองเริ่มจากการลืมตาขึ้นมาก่อน
+ดวงตาของคุณที่เปิดออกเพียงครึ่งเดียวได้จ้องตรงไปที่เพดานห้อง
+โฟกัส
+
+
+คุณพยายามบอกตัวเองให้ลืมตาค้างเอาไว้
+จ้องตรงต่อไปที่เพดานตรงหน้า
+จากนั้นจึงเริ่มลองกวาดสายตามองรอบๆ ห้อง
+ด้วยแรงอันน้อยนิดที่มี คุณทำได้เพียงแค่พลิกตัวไปมาอยู่สองสามครั้งเท่านั้น
+คุณตัดสินใจกลับมาตั้งหลักอีกครั้ง
+จ้องมองไปยังเพดานผืนเดิมที่ว่างเปล่า
+มีเพียงหลอดไฟเพดานที่ไร้ซึ่งแสงไฟ
+
+
+คุณจ้องมองไปในความว่างเปล่าอยู่นานสองนาน
+เปลือกตาของคุณเบาขึ้นจนสามารถเปิดได้อย่างเต็มที่
+ร่างกายของคุณเองก็ดูจะเบาขึ้นมาแล้วเหมือนกัน
+ตอนนี้มีเพียงอุปสรรคเดียวเท่านั้น`,
   day0_after_intro:        '[ เนื้อเรื่องหลังจบมินิเกมแรก ]',
   day0_choice1_optA_story: '[ เนื้อเรื่องทางเลือกที่ 1 (วันที่ 1) — ห้องเรียน ]',
   day0_choice1_optB_story: '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 1) — ห้องเรียน ]',
@@ -155,9 +231,39 @@ const TEXT: Record<string, string> = {
   day2_pre_ending:          '[ เนื้อเรื่องก่อนจบวันที่ 3 ]',
 
   // ── จบเกม ────────────────────────────────────────────────────────────
-  final_good: '[ คำบรรยายจบเกมแบบ Good Ending 🎉 ]',
-  final_bad:  '[ คำบรรยายจบเกมแบบ Bad Ending ]',
+  final_good: `คุณเคยได้ยินหรือเปล่า
+
+เรื่องที่ว่าการขยับปีกของผีเสื้ออาจทำให้เกิดพายุเฮอริเคนได้
+
+ถ้าได้เห็นกับตาคงเจ็บจี๊ดเนอะว่านั่น?
+
+ฮ่าๆ....
+
+แต่ดูเหมือนว่า....
+
+เราจะได้เห็นมันแล้วล่ะ....
+
+แบบนี้แสดงว่า... เราคงต้องตั้งชื่อพายุลูกนี้ว่า "{playerName}" ใช่มั้ยนะ?`,
+  final_bad: `ในตอนที่ผีเสื้อสายเป็นครั้งแรก
+
+มันราวกับว่าพวกมันได้เกิดใหม่...
+
+เกิดใหม่เป็นสิ่งที่งดงามเกินจะบรรยาย
+
+ปีกของพวกมันช่างน่าหลงใหล และน่าทึ่ง
+
+ความงดงามนี้สามารถพาพวกมันบินข้ามมหาสมุทรได้
+
+ช่างเป็นความงามที่แข็งแกร่ง...
+
+แต่ในขณะเดียวกัน... ก็แสนบอบบาง
+
+แม้จะเปล่งประกายมากแค่ไหน แต่เมื่อยามฝนตก... ปีกที่แสนบอบบางนั้น...`,
 };
+
+function formatStoryText(text: string, values: Record<string, string>) {
+  return text.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+}
 
 // ─────────────────────────────────────────────
 //  TYPES
@@ -257,6 +363,8 @@ export default function MainGamePage() {
   const [step, setStep] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [storySegments, setStorySegments] = useState<string[]>([]);
+  const [segmentIndex, setSegmentIndex] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ── ชื่อผู้เล่น ───────────────────────────────────────────────────────────
@@ -277,6 +385,7 @@ export default function MainGamePage() {
 
   const dayConfig = DAY_CONFIGS[dayIndex];
   const showScoreCounter = screen === 'story' && node !== 'intro';
+  const currentSegmentText = storySegments[segmentIndex] ?? '';
 
   // ── Dialog typewriter ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -302,20 +411,30 @@ export default function MainGamePage() {
         text = TEXT[`day${dayIndex}_${suffix}`];
       }
     } else if (screen === 'final_narration') {
-      text = TEXT[hope > fracture ? 'final_good' : 'final_bad'];
+      if (hope > fracture) {
+        text = formatStoryText(TEXT.final_good, {
+          playerName: playerName || 'พายุลูกนี้',
+        });
+      } else {
+        text = TEXT.final_bad;
+      }
     }
 
-    if (text) {
-      startTyping(text);
-    } else {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
+    const segments = text ? splitStorySegments(text) : [];
+    setStorySegments(segments);
+    setSegmentIndex(0);
+  }, [screen, node, dayIndex, hope, fracture]);
+
+  useEffect(() => {
+    if (screen === 'opening_dialog') return;
+    if (!currentSegmentText) {
       setDisplayedText('');
       setIsTyping(false);
+      return;
     }
-  }, [screen, node, dayIndex, hope, fracture]);
+
+    startTyping(currentSegmentText);
+  }, [screen, currentSegmentText]);
 
   function startTyping(text: string) {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -347,6 +466,25 @@ export default function MainGamePage() {
     } else {
       goToDayStart(0);
     }
+  }
+
+  function proceedStory(nextNode: () => void) {
+    if (isTyping) {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      setDisplayedText(currentSegmentText);
+      setIsTyping(false);
+      return;
+    }
+
+    if (segmentIndex < storySegments.length - 1) {
+      setSegmentIndex((index) => index + 1);
+      return;
+    }
+
+    nextNode();
   }
 
   // ทุกวันเริ่มที่ node 'intro' เสมอ (วันที่ 1 มีมินิเกมเปิดเรื่อง,
@@ -536,7 +674,7 @@ export default function MainGamePage() {
   function StoryBox({ textKey, next, label = 'เนื้อเรื่อง', nextLabel = NEXT_LABELS.default }: {
     textKey: string; next: () => void; label?: string; nextLabel?: string;
   }) {
-    const storyText = TEXT[textKey];
+    const storyText = currentSegmentText || TEXT[textKey];
 
     const handleClick = () => {
       if (isTyping) {
@@ -637,7 +775,7 @@ export default function MainGamePage() {
         <>
           {/* ── เปิดวัน (ฉากที่ 1 ของทุกวัน) ── */}
           {node === 'intro' && (
-            <StoryBox textKey={t('intro')} label={dayConfig.dayLabel} next={handleIntroNext} />
+            <StoryBox textKey={t('intro')} label={dayConfig.dayLabel} next={() => proceedStory(handleIntroNext)} />
           )}
 
           {/* ── มินิเกมเปิดเรื่อง (มีเฉพาะวันที่ 1 -> Mini_games_4) ── */}
@@ -649,12 +787,12 @@ export default function MainGamePage() {
           )}
 
           {node === 'afterIntro' && (
-            <StoryBox textKey={t('after_intro')} next={() => setNode('choice1')} />
+            <StoryBox textKey={t('after_intro')} next={() => proceedStory(() => setNode('choice1'))} />
           )}
 
           {/* ── ฉาก "เนื้อเรื่องตอนอยู่โรงเรียน" (มีเฉพาะวันที่ 2) ── */}
           {node === 'atSchool' && (
-            <StoryBox textKey={t('at_school')} next={() => setNode('choice1')} />
+            <StoryBox textKey={t('at_school')} next={() => proceedStory(() => setNode('choice1'))} />
           )}
 
           {/* ── ทางเลือกที่ 1 ── */}
@@ -670,7 +808,7 @@ export default function MainGamePage() {
             ปุ่ม "ไม่มั่นใจ" ในวันที่ 1 ก็จะวนมาที่ฉากนี้เหมือนกันตามผัง
           */}
           {node === 'choice1_optA' && (
-            <StoryBox textKey={t('choice1_optA_story')} next={handleChoice1OptAContinue} />
+            <StoryBox textKey={t('choice1_optA_story')} next={() => proceedStory(handleChoice1OptAContinue)} />
           )}
 
           {/*
@@ -682,7 +820,7 @@ export default function MainGamePage() {
           {node === 'choice1_optB' && !dayConfig.choice1.hasConfirm && (
             <StoryBox
               textKey={t('choice1_optB_story')}
-              next={() => {
+              next={() => proceedStory(() => {
                 const cfg = dayConfig.choice1;
                 if (cfg.hasConfirm) return;
                 if (cfg.optBMiniGame === 'none') {
@@ -691,7 +829,7 @@ export default function MainGamePage() {
                 } else {
                   launchMiniGame(cfg.optBMiniGame, 'choice1');
                 }
-              }}
+              })}
             />
           )}
 
@@ -727,7 +865,7 @@ export default function MainGamePage() {
 
           {/* ── บรรจบกัน ── */}
           {node === 'converge' && (
-            <StoryBox textKey={t('converge_story')} next={() => setNode('choice2')} />
+            <StoryBox textKey={t('converge_story')} next={() => proceedStory(() => setNode('choice2'))} />
           )}
 
           {/* ── ทางเลือกที่ 2 ── */}
@@ -740,7 +878,7 @@ export default function MainGamePage() {
 
           {/* ── choice2_optA: ฉากเนื้อเรื่องของทางเลือก A (ทุกวัน) ก่อนได้ Fracture +1 ── */}
           {node === 'choice2_optA' && (
-            <StoryBox textKey={t('choice2_optA_story')} next={handleChoice2OptAContinue} />
+            <StoryBox textKey={t('choice2_optA_story')} next={() => proceedStory(handleChoice2OptAContinue)} />
           )}
 
           {/*
@@ -752,20 +890,20 @@ export default function MainGamePage() {
           {node === 'choice2_optB' && (
             <StoryBox
               textKey={t('choice2_optB_story')}
-              next={() => {
+              next={() => proceedStory(() => {
                 if (dayConfig.choice2.optBMiniGame === 'none') {
                   setHope(h => h + 1);
                   setNode('preEnding');
                 } else {
                   launchMiniGame(dayConfig.choice2.optBMiniGame, 'choice2');
                 }
-              }}
+              })}
             />
           )}
 
           {/* ── ก่อนจบวัน ── */}
           {node === 'preEnding' && (
-            <StoryBox textKey={t('pre_ending')} label="ก่อนจบวัน" next={() => setNode('dayEnd')} />
+            <StoryBox textKey={t('pre_ending')} label="ก่อนจบวัน" next={() => proceedStory(() => setNode('dayEnd'))} />
           )}
 
           {/* ── จบวัน ── */}
@@ -790,7 +928,7 @@ export default function MainGamePage() {
         <StoryBox
           textKey={hope > fracture ? 'final_good' : 'final_bad'}
           label="จบเกม"
-          next={() => setScreen('recap')}
+          next={() => proceedStory(() => setScreen('recap'))}
           nextLabel={NEXT_LABELS.final}
         />
       )}
