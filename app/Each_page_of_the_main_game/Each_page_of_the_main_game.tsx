@@ -85,6 +85,12 @@ const STORY_NODE_TEXT_KEY: Partial<Record<StoryNode, string>> = {
   preEnding: 'pre_ending',
 };
 
+// ── ตัดเนื้อเรื่องยาวๆ ให้เป็นชิ้นย่อยที่อ่านง่าย ──────────────────────────
+// 1) ถ้าในข้อความมีการเว้นบรรทัดว่าง (\n\n) อยู่แล้ว ให้ถือว่านั่นคือจุดแบ่งฉาก/จังหวะ
+//    ที่ผู้เขียนตั้งใจไว้ และเก็บการเว้นบรรทัดเดี่ยว (\n) ภายในย่อหน้าไว้ตามเดิม
+//    (แสดงผลด้วย white-space: pre-line เพื่อคงจังหวะบทกวี/บทบรรยายสั้นๆ)
+// 2) ถ้าเป็นข้อความยาวพรืดโดยไม่มีการเว้นวรรค ให้ตัดตามความยาวสูงสุดแทน
+//    เพื่อกันไม่ให้กล่องข้อความรกและอ่านยากเกินไปในคลิกเดียว
 function splitStorySegments(text: string): string[] {
   const paragraphs = text
     .split(/\n{2,}/)
@@ -302,10 +308,35 @@ type Screen = 'opening_dialog' | 'story' | 'final_narration' | 'recap';
 // ─────────────────────────────────────────────
 //  STABLE, TOP-LEVEL UI COMPONENTS
 //  (แยกออกมานอก MainGamePage เพื่อไม่ให้ถูกสร้างใหม่ทุกครั้งที่ re-render
-//   ระหว่าง typewriter กำลังพิมพ์ — นี่คือสาเหตุของบั๊ก
-//   "กดครั้งแรกแล้วข้อความขึ้นครบ + ข้ามไปเลยในคลิกเดียว" เดิม
+//   ระหว่าง typewriter กำลังพิมพ์ — นี่คือสาเหตุของบั๊กเดิมที่เคยแก้ไปแล้ว
+//   ["กดครั้งแรกแล้วข้อความขึ้นครบ + ข้ามไปเลยในคลิกเดียว"]
 //   เพราะปุ่มถูก unmount/remount ทุก 40ms ระหว่างพิมพ์)
+//
+//  หมายเหตุการจัดระเบียบรอบนี้ (ทำให้หน้าจอ "ไม่รกตา"):
+//  - คะแนน Hope/Fracture ย้ายออกจากกล่องเนื้อเรื่อง ไปเป็น HUD ลอยมุมจอ
+//    แทน — ไม่ต้องส่ง props hope/fracture/showScore ไปทุกกล่องอีกต่อไป
+//  - กล่องเนื้อเรื่องเปลี่ยนเป็นการ์ดกระจกฝ้า (glass) ลอยกลางล่างจอ
+//    แคบลง มีมุมโค้ง มีป้ายชื่อฉากลอยอยู่ขอบบนกล่อง แทนแถบเต็มความกว้างจอเดิม
+//  - พื้นหลังฉากใช้ gradient มืดเฉพาะโซนล่าง (จุดที่มีตัวหนังสือ) แทนภาพมืดทึบทั้งจอ
+//    ทำให้ภาพประกอบยังมองเห็นชัดเจนแต่ตัวหนังสือยังอ่านง่าย
+//  - เนื้อเรื่องใช้ whitespace-pre-line เพื่อคงจังหวะการเว้นบรรทัดที่ผู้เขียนตั้งใจไว้
+//    (ประโยคสั้นๆ ทีละบรรทัดตามต้นฉบับใน TEXT) แทนที่จะถูกรวบเป็นบรรทัดเดียว
+//  - กล่องเนื้อเรื่องมี max-height + overflow-y-auto กันข้อความยาวล้นจอ
 // ─────────────────────────────────────────────
+
+function ScoreHUD({ hope, fracture }: { hope: number; fracture: number }) {
+  return (
+    <div className="fixed top-4 left-4 z-40 flex items-center gap-2 rounded-full border border-blue-400/30 bg-slate-950/70 backdrop-blur-md px-3 py-1.5 shadow-lg shadow-black/40 animate-fadeUp">
+      <span className="flex items-center gap-1 text-cyan-300 text-sm font-semibold">
+        <span className="text-xs">✨</span>{hope}
+      </span>
+      <span className="h-3 w-px bg-blue-400/30" />
+      <span className="flex items-center gap-1 text-red-300 text-sm font-semibold">
+        <span className="text-xs">💔</span>{fracture}
+      </span>
+    </div>
+  );
+}
 
 function NextButton({
   onClick,
@@ -334,35 +365,37 @@ function NextButton({
   );
 }
 
+/**
+ * Box — การ์ดกระจกฝ้าสำหรับเนื้อหาทุกประเภท (เนื้อเรื่อง / ทางเลือก / เมนูจบเกม ฯลฯ)
+ * ลอยกลางล่างจอ แคบกว่าความกว้างจอเต็ม เพื่อไม่ให้บังภาพประกอบทั้งหมด
+ * และดูเป็นกล่องข้อความเกมภาพ (visual novel) มากขึ้นแทนแถบเต็มจอแบบเดิม
+ */
 function Box({
   label,
   children,
-  showScore,
-  hope,
-  fracture,
   fadeUp = true,
 }: {
   label?: string;
   children: React.ReactNode;
-  showScore?: boolean;
-  hope: number;
-  fracture: number;
   fadeUp?: boolean;
 }) {
   return (
-    <div className={`relative z-10 w-full bg-[rgba(8,12,50,0.97)] border-t-2 border-blue-600 px-7 py-6 ${fadeUp ? 'animate-fadeUp' : ''}`}>
-      {showScore && (
-        <div className="absolute top-3 right-5 flex items-center gap-3 rounded-full bg-blue-950/80 border border-blue-500/40 px-3 py-1">
-          <span className="flex items-center gap-1 text-cyan-300 text-sm font-semibold">
-            <span className="text-xs">✨</span>{hope}
+    <div className="relative z-10 w-full px-4 pb-4 md:px-0 md:pb-8">
+      <div
+        className={
+          'relative mx-auto w-full max-w-3xl md:max-w-4xl rounded-2xl ' +
+          'border border-blue-400/25 bg-slate-950/75 backdrop-blur-md ' +
+          'px-6 py-6 shadow-2xl shadow-black/60 md:px-8 md:py-7 ' +
+          (fadeUp ? 'animate-fadeUp' : '')
+        }
+      >
+        {label && (
+          <span className="absolute -top-3 left-6 rounded-full bg-blue-600/90 px-3 py-1 text-[11px] font-semibold tracking-wide text-white shadow-md shadow-blue-950/50">
+            {label}
           </span>
-          <span className="flex items-center gap-1 text-red-300 text-sm font-semibold">
-            <span className="text-xs">💔</span>{fracture}
-          </span>
-        </div>
-      )}
-      {label && <p className="text-[11px] tracking-widest text-blue-400 uppercase mb-2">{label}</p>}
-      {children}
+        )}
+        {children}
+      </div>
     </div>
   );
 }
@@ -375,41 +408,41 @@ function Box({
  *  - ถ้าพิมพ์ครบแล้วแต่ยังมี segment ถัดไป -> เลื่อนไป segment ถัดไป (เริ่มพิมพ์ใหม่)
  *  - ถ้าพิมพ์ครบและอยู่ segment สุดท้าย   -> เรียก next() เพื่อไปฉาก/โหนดถัดไป
  *
- * ต่างจากโค้ดเดิมที่ StoryBox มี handleClick ของตัวเอง "และ" proceedStory
- * ก็เช็คเงื่อนไขซ้ำอีกชั้นหนึ่ง (สองจุดเช็ค isTyping/segmentIndex ซ้อนกัน)
- * เมื่อรวมกับการที่ StoryBox ถูกสร้างเป็นคอมโพเนนต์ใหม่ทุก re-render
- * (เพราะเดิมประกาศไว้ข้างในฟังก์ชันคอมโพเนนต์หลัก) ทำให้ปุ่มถูก
- * unmount/remount ระหว่างพิมพ์ตัวอักษรทุก 40ms จนบางครั้งคลิกครั้งแรก
- * โดนตีความว่าเป็นการคลิกที่ปุ่ม "คนละตัว" ล่วงหน้า ผลคือพิมพ์ครบ + ข้ามไปในคลิกเดียว
+ * segmentIndex ถูกใช้เป็น React key ของย่อหน้า เพื่อให้ทุกครั้งที่เปลี่ยน segment
+ * ข้อความจะ fade เข้าใหม่เบาๆ (ใช้ animate-fadeUp เดิมที่มีอยู่แล้ว) แทนที่จะ
+ * โผล่มาแข็งๆ ทันที ช่วยให้จังหวะการเล่าเรื่องดูนุ่มนวลขึ้น
  */
 function StoryBox({
   isTyping,
   displayedText,
+  segmentIndex,
   label = 'เนื้อเรื่อง',
   nextLabel = NEXT_LABELS.default,
-  showScore,
-  hope,
-  fracture,
   fadeUp,
   onAdvance,
 }: {
   isTyping: boolean;
   displayedText: string;
+  segmentIndex: number;
   label?: string;
   nextLabel?: string;
-  showScore?: boolean;
-  hope: number;
-  fracture: number;
   fadeUp?: boolean;
   onAdvance: () => void;
 }) {
   return (
-    <Box label={label} showScore={showScore} hope={hope} fracture={fracture} fadeUp={fadeUp}>
-      <p className="text-[17px] leading-relaxed text-slate-100 min-h-[52px]">
+    <Box label={label} fadeUp={fadeUp}>
+      <p
+        key={segmentIndex}
+        className={
+          'animate-fadeUp whitespace-pre-line text-[16px] leading-[1.9] tracking-wide ' +
+          'text-slate-100/95 [text-shadow:_0_1px_4px_rgb(0_0_0_/_55%)] ' +
+          'min-h-[3.2em] max-h-[42vh] overflow-y-auto pr-1 md:text-[17px]'
+        }
+      >
         {displayedText}
-        <span className="inline-block w-[2px] h-[1.1em] bg-blue-400 align-middle ml-0.5 animate-blink" />
+        <span className="ml-0.5 inline-block h-[1.1em] w-[2px] align-middle bg-blue-400 animate-blink" />
       </p>
-      <div className="mt-4 flex justify-end">
+      <div className="mt-5 flex justify-end">
         <NextButton onClick={onAdvance} label={nextLabel} />
       </div>
     </Box>
@@ -420,23 +453,17 @@ function MiniGameGate({
   label,
   onPlay,
   playLabel = NEXT_LABELS.miniGameGate,
-  showScore,
-  hope,
-  fracture,
 }: {
   label: string;
   onPlay: () => void;
   playLabel?: string;
-  showScore?: boolean;
-  hope: number;
-  fracture: number;
 }) {
   return (
-    <Box label={label} showScore={showScore} hope={hope} fracture={fracture}>
-      <p className="text-[17px] leading-relaxed text-slate-100 min-h-[52px]">
+    <Box label={label}>
+      <p className="text-[16px] leading-relaxed text-slate-100/95 md:text-[17px]">
         ก่อนไปต่อ ลองเล่นมินิเกมกันก่อนสักหน่อย
       </p>
-      <div className="mt-4 flex justify-end">
+      <div className="mt-5 flex justify-end">
         <NextButton onClick={onPlay} label={playLabel} />
       </div>
     </Box>
@@ -446,18 +473,12 @@ function MiniGameGate({
 function ChoiceBox({
   label,
   choices,
-  showScore,
-  hope,
-  fracture,
 }: {
   label: string;
   choices: { label: string; color: 'green' | 'purple' | 'yellow' | 'red'; onClick: () => void }[];
-  showScore?: boolean;
-  hope: number;
-  fracture: number;
 }) {
   return (
-    <Box label={label} showScore={showScore} hope={hope} fracture={fracture}>
+    <Box label={label}>
       <div className="flex flex-col gap-3">
         {choices.map((c, i) => (
           <button key={i} onClick={c.onClick} className={`choice-btn choice-${c.color}`}>{c.label}</button>
@@ -538,7 +559,7 @@ export default function MainGamePage() {
   }), []);
 
   const dayConfig = DAY_CONFIGS[dayIndex];
-  const showScoreCounter = screen === 'story' && node !== 'intro';
+  const showScoreHUD = screen === 'story' && node !== 'intro';
   const currentSegmentText = storySegments[segmentIndex] ?? '';
 
   // ── Dialog typewriter (หน้าเปิดเกม) ──
@@ -798,11 +819,6 @@ export default function MainGamePage() {
     router.push('/');
   }
 
-  function t(suffix: string) {
-    return `day${dayIndex}_${suffix}`;
-  }
-  void t; // เก็บไว้เผื่อใช้ debug/logging ต่อ ไม่ได้ใช้แสดงผลโดยตรงแล้ว (ใช้ currentSegmentText แทน)
-
   // ── Mini-game overlay ──
   if (selectedMiniGame) {
     const SelectedGame = miniGameComponents[selectedMiniGame];
@@ -832,10 +848,14 @@ export default function MainGamePage() {
     <div className="relative min-h-screen flex flex-col justify-end bg-black overflow-hidden">
       {screen === 'story' && (
         <div
-          className="absolute inset-0 bg-cover bg-center transition-[background-image] duration-500"
+          className="absolute inset-0 bg-cover bg-center transition-[background-image] duration-700 ease-out"
           style={{ backgroundImage: `url(${currentBg})` }}
         >
-          <div className="absolute inset-0 bg-black/55" />
+          {/* โทนมืดบางๆ ทั้งภาพ เพื่อให้อารมณ์ฉากนุ่มลง แต่ยังเห็นภาพประกอบชัด */}
+          <div className="absolute inset-0 bg-black/20" />
+          {/* ไล่เฉดมืดเข้มขึ้นเฉพาะโซนล่างจอ (จุดที่มีกล่องข้อความ) เพื่อให้อ่านง่าย
+              โดยไม่ต้องบังภาพประกอบทั้งจอเหมือนเดิม */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
         </div>
       )}
       {screen !== 'story' && <Stars />}
@@ -844,14 +864,16 @@ export default function MainGamePage() {
         <AudioSettingsButton />
       </div>
 
+      {showScoreHUD && <ScoreHUD hope={hope} fracture={fracture} />}
+
       {/* ── คำบรรยายเปิดเกม ── */}
       {screen === 'opening_dialog' && (
-        <Box label="ข้อความ" hope={hope} fracture={fracture} fadeUp={false}>
-          <p className="text-[17px] leading-relaxed text-slate-100 min-h-[52px]">
+        <Box label="ข้อความ" fadeUp={false}>
+          <p className="whitespace-pre-line text-[16px] leading-[1.9] tracking-wide text-slate-100/95 min-h-[3.2em] md:text-[17px]">
             {dialogDisplayedText}
-            <span className="inline-block w-[2px] h-[1.1em] bg-blue-400 align-middle ml-0.5 animate-blink" />
+            <span className="ml-0.5 inline-block h-[1.1em] w-[2px] align-middle bg-blue-400 animate-blink" />
           </p>
-          <div className="mt-3 text-right">
+          <div className="mt-5 flex justify-end">
             <NextButton
               onClick={handleDialogNext}
               label={step === DIALOGS.length - 1 && !dialogIsTyping ? NEXT_LABELS.dialogStart : NEXT_LABELS.dialog}
@@ -866,10 +888,8 @@ export default function MainGamePage() {
             <StoryBox
               isTyping={isTyping}
               displayedText={displayedText}
+              segmentIndex={segmentIndex}
               label={dayConfig.dayLabel}
-              hope={hope}
-              fracture={fracture}
-              showScore={showScoreCounter}
               fadeUp={true}
               onAdvance={() => handleStoryAdvance(handleIntroNext)}
             />
@@ -878,9 +898,6 @@ export default function MainGamePage() {
           {node === 'introMiniGame' && dayConfig.introMiniGame && (
             <MiniGameGate
               label={dayConfig.dayLabel}
-              hope={hope}
-              fracture={fracture}
-              showScore={showScoreCounter}
               onPlay={() => launchMiniGame(dayConfig.introMiniGame!, 'intro')}
             />
           )}
@@ -889,9 +906,7 @@ export default function MainGamePage() {
             <StoryBox
               isTyping={isTyping}
               displayedText={displayedText}
-              hope={hope}
-              fracture={fracture}
-              showScore={showScoreCounter}
+              segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(() => setNode('choice1'))}
             />
           )}
@@ -900,9 +915,7 @@ export default function MainGamePage() {
             <StoryBox
               isTyping={isTyping}
               displayedText={displayedText}
-              hope={hope}
-              fracture={fracture}
-              showScore={showScoreCounter}
+              segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(() => setNode('choice1'))}
             />
           )}
@@ -910,9 +923,6 @@ export default function MainGamePage() {
           {node === 'choice1' && (
             <ChoiceBox
               label={`ทางเลือก – ${dayConfig.dayLabel}`}
-              hope={hope}
-              fracture={fracture}
-              showScore={showScoreCounter}
               choices={[
                 { label: 'ทางเลือกที่ 1', color: 'green',  onClick: handleChoice1OptA },
                 { label: 'ทางเลือกที่ 2', color: 'purple', onClick: handleChoice1OptB },
@@ -924,9 +934,7 @@ export default function MainGamePage() {
             <StoryBox
               isTyping={isTyping}
               displayedText={displayedText}
-              hope={hope}
-              fracture={fracture}
-              showScore={showScoreCounter}
+              segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(handleChoice1OptAContinue)}
             />
           )}
@@ -935,9 +943,7 @@ export default function MainGamePage() {
             <StoryBox
               isTyping={isTyping}
               displayedText={displayedText}
-              hope={hope}
-              fracture={fracture}
-              showScore={showScoreCounter}
+              segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(handleChoice1OptBFinish)}
             />
           )}
@@ -945,9 +951,6 @@ export default function MainGamePage() {
           {node === 'choice1_confirm' && (
             <ChoiceBox
               label="มั่นใจกับทางเลือกไหม"
-              hope={hope}
-              fracture={fracture}
-              showScore={showScoreCounter}
               choices={[
                 { label: 'มั่นใจ',    color: 'green', onClick: handleConfirmYes },
                 { label: 'ไม่มั่นใจ', color: 'red',   onClick: handleConfirmNo },
@@ -956,10 +959,9 @@ export default function MainGamePage() {
           )}
 
           {node === 'choice1_name' && (
-            <div className="relative z-10 w-full bg-[rgba(8,12,50,0.97)] border-t-2 border-blue-600 px-7 py-6">
-              <p className="text-base font-medium text-yellow-300 mb-1">ตั้งชื่อตัวละครของคุณ</p>
-              <p className="text-sm text-blue-300 mb-4">ใส่ชื่อตัวเอกของเรื่องราวด้านล่าง</p>
-              <div className="flex gap-3 items-center">
+            <Box label="ตั้งชื่อตัวละคร">
+              <p className="mb-4 text-sm text-blue-300">ใส่ชื่อตัวเอกของเรื่องราวด้านล่าง</p>
+              <div className="flex items-center gap-3">
                 <input
                   ref={inputRef}
                   type="text"
@@ -969,20 +971,18 @@ export default function MainGamePage() {
                   onKeyDown={e => e.key === 'Enter' && handleConfirmName()}
                   placeholder="ชื่อตัวละคร..."
                   autoFocus
-                  className="flex-1 bg-white/5 border border-blue-600 focus:border-blue-400 rounded-lg text-slate-100 text-base px-4 py-2.5 outline-none placeholder-blue-900 transition-colors"
+                  className="flex-1 rounded-lg border border-blue-600 bg-white/5 px-4 py-2.5 text-base text-slate-100 outline-none placeholder-blue-900 transition-colors focus:border-blue-400"
                 />
                 <NextButton onClick={handleConfirmName} label="ยืนยัน ✓" />
               </div>
-            </div>
+            </Box>
           )}
 
           {node === 'converge' && (
             <StoryBox
               isTyping={isTyping}
               displayedText={displayedText}
-              hope={hope}
-              fracture={fracture}
-              showScore={showScoreCounter}
+              segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(() => setNode('choice2'))}
             />
           )}
@@ -990,9 +990,6 @@ export default function MainGamePage() {
           {node === 'choice2' && (
             <ChoiceBox
               label={`ทางเลือก – ${dayConfig.dayLabel}`}
-              hope={hope}
-              fracture={fracture}
-              showScore={showScoreCounter}
               choices={[
                 { label: 'ทางเลือก A', color: 'green',  onClick: handleChoice2OptA },
                 { label: 'ทางเลือก B', color: 'purple', onClick: handleChoice2OptB },
@@ -1004,9 +1001,7 @@ export default function MainGamePage() {
             <StoryBox
               isTyping={isTyping}
               displayedText={displayedText}
-              hope={hope}
-              fracture={fracture}
-              showScore={showScoreCounter}
+              segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(handleChoice2OptAContinue)}
             />
           )}
@@ -1015,9 +1010,7 @@ export default function MainGamePage() {
             <StoryBox
               isTyping={isTyping}
               displayedText={displayedText}
-              hope={hope}
-              fracture={fracture}
-              showScore={showScoreCounter}
+              segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(handleChoice2OptBFinish)}
             />
           )}
@@ -1026,20 +1019,18 @@ export default function MainGamePage() {
             <StoryBox
               isTyping={isTyping}
               displayedText={displayedText}
+              segmentIndex={segmentIndex}
               label="ก่อนจบวัน"
-              hope={hope}
-              fracture={fracture}
-              showScore={showScoreCounter}
               onAdvance={() => handleStoryAdvance(() => setNode('dayEnd'))}
             />
           )}
 
           {node === 'dayEnd' && (
-            <Box label={dayConfig.dayLabel} showScore={showScoreCounter} hope={hope} fracture={fracture}>
-              <p className="text-[17px] leading-relaxed text-slate-100">
+            <Box label={dayConfig.dayLabel}>
+              <p className="text-[17px] leading-relaxed text-slate-100/95">
                 จบ{dayConfig.dayLabel}แล้ว
               </p>
-              <div className="mt-4 text-right">
+              <div className="mt-5 flex justify-end">
                 <NextButton
                   onClick={handleDayEndNext}
                   label={dayIndex < DAY_CONFIGS.length - 1 ? NEXT_LABELS.dayEnd : NEXT_LABELS.dayEndLast}
@@ -1055,9 +1046,8 @@ export default function MainGamePage() {
         <StoryBox
           isTyping={isTyping}
           displayedText={displayedText}
+          segmentIndex={segmentIndex}
           label="จบเกม"
-          hope={hope}
-          fracture={fracture}
           nextLabel={NEXT_LABELS.final}
           onAdvance={() => handleStoryAdvance(() => setScreen('recap'))}
         />
@@ -1065,7 +1055,7 @@ export default function MainGamePage() {
 
       {/* ── สรุปผล ── */}
       {screen === 'recap' && (
-        <Box label="สรุปผล" hope={hope} fracture={fracture}>
+        <Box label="สรุปผล">
           <p className="text-lg text-yellow-300">
             {playerName ? `${playerName} ` : ''}ผ่านการผจญภัยมาได้แล้ว
           </p>
@@ -1073,7 +1063,7 @@ export default function MainGamePage() {
             <span className="text-cyan-300">✨ Hope: {hope}</span>
             <span className="text-red-300">💔 Fracture: {fracture}</span>
           </div>
-          <p className="text-sm text-blue-300 mt-3">ขอบคุณที่เล่นเกมนี้ 🌟</p>
+          <p className="mt-3 text-sm text-blue-300">ขอบคุณที่เล่นเกมนี้ 🌟</p>
           <div className="mt-4 text-right">
             <button onClick={handleRestart} className="btn-secondary">
               {NEXT_LABELS.restart}
