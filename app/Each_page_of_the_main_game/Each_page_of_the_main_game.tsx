@@ -8,11 +8,6 @@ import MiniGames4 from '../Mini_games_4/Mini_games_4';
 import MiniGames5 from '../Mini_games_5/Mini_games_5';
 import AudioSettingsButton from '../components/AudioSettingsButton';
 
-// ─────────────────────────────────────────────
-//  โครงสร้างนี้สร้างตาม
-//  "ข้อมูลการทำงานของเส้นทางเนื้อเรื่อง + ภาพ.drawio" (เวอร์ชันล่าสุด)
-// ─────────────────────────────────────────────
-
 // ── ภาพฉากหลัง (ตามชื่อไฟล์จริงใน public/images/Daily story background images) ──
 const IMG_BASE = '/images/Daily story background images/';
 const BG = {
@@ -30,11 +25,13 @@ const DAY_BACKGROUNDS: Record<number, Partial<Record<StoryNode, string>>> = {
     intro: BG.bedroom,
     introMiniGame: BG.bedroom,
     afterIntro: BG.bedroom,
+    beforeChoice1: BG.classroomDay1,
     choice1: BG.classroomDay1,
     choice1_optA: BG.classroomDay1,
     choice1_optB: BG.classroomDay1,
     choice1_confirm: BG.classroomDay1,
     choice1_name: BG.classroomDay1,
+    choice1_afterName: BG.classroomDay1,
     converge: BG.bedroom,
     choice2: BG.bedroom,
     choice2_optA: BG.bedroom,
@@ -76,21 +73,17 @@ function getBackground(dayIndex: number, node: StoryNode): string {
 const STORY_NODE_TEXT_KEY: Partial<Record<StoryNode, string>> = {
   intro: 'intro',
   afterIntro: 'after_intro',
+  beforeChoice1: 'before_choice1',
   atSchool: 'at_school',
   choice1_optA: 'choice1_optA_story',
   choice1_optB: 'choice1_optB_story',
   converge: 'converge_story',
+  choice1_afterName: 'choice1_afterName_story',
   choice2_optA: 'choice2_optA_story',
   choice2_optB: 'choice2_optB_story',
   preEnding: 'pre_ending',
 };
 
-// ── ตัดเนื้อเรื่องยาวๆ ให้เป็นชิ้นย่อยที่อ่านง่าย ──────────────────────────
-// 1) ถ้าในข้อความมีการเว้นบรรทัดว่าง (\n\n) อยู่แล้ว ให้ถือว่านั่นคือจุดแบ่งฉาก/จังหวะ
-//    ที่ผู้เขียนตั้งใจไว้ และเก็บการเว้นบรรทัดเดี่ยว (\n) ภายในย่อหน้าไว้ตามเดิม
-//    (แสดงผลด้วย white-space: pre-line เพื่อคงจังหวะบทกวี/บทบรรยายสั้นๆ)
-// 2) ถ้าเป็นข้อความยาวพรืดโดยไม่มีการเว้นวรรค ให้ตัดตามความยาวสูงสุดแทน
-//    เพื่อกันไม่ให้กล่องข้อความรกและอ่านยากเกินไปในคลิกเดียว
 function splitStorySegments(text: string): string[] {
   const paragraphs = text
     .split(/\n{2,}/)
@@ -142,8 +135,10 @@ const TEXT: Record<string, string> = {
   day0_intro: `ความสงบกลับมาอีกครั้ง
 คุณพลิกตัวกลับไปในที่จุดเดิม
 ดวงตาทั้งสองข้างของคุณยังคงลังเลที่จะเปิดออก
+
 คุณรู้ดี ตอนนี้ไม่ใช่เวลาที่จะนิ่งเฉยและปล่อยเวลาให้ผ่านไป
 ในตอนนั้นคุณได้ตัดสินใจ
+
 คุณลุกขึ้น
 คุณสูดหายใจเข้าลึกๆ
 พยายามสั่งการร่างกายส่วนบนให้ขยับ
@@ -151,6 +146,7 @@ const TEXT: Record<string, string> = {
 ทว่า
 สิ่งที่เกิดขึ้นกลับเป็นตัวของคุณที่แค่พลิกไปด้านข้างเท่านั้น
 คุณรู้สึกว่าร่างกายหนักอึ้งราวกับเหล็กหลายสิบตัน
+
 แต่ในขณะเดียวกันก็ยังสามารถขยับแขนขาได้เป็นปกติ
 เป็นความรู้สึกที่อธิบายไม่ได้
 ลุกขึ้น
@@ -158,28 +154,96 @@ const TEXT: Record<string, string> = {
 คุณพยายามอีกครั้ง
 แต่ยิ่งคุณคิดที่จะทำมัน ก็ยิ่งรู้สึกว่ามีบางอย่างกดคุณเอาไว้
 คุณยกแขนขึ้นมาก่ายหน้าผากตัวเอง ก่อนจะพยายามยืดเส้นเบาๆ
+
 คุณสูดหายใจอีกครั้งและลองเริ่มจากการลืมตาขึ้นมาก่อน
 ดวงตาของคุณที่เปิดออกเพียงครึ่งเดียวได้จ้องตรงไปที่เพดานห้อง
 โฟกัส
 
-
 คุณพยายามบอกตัวเองให้ลืมตาค้างเอาไว้
 จ้องตรงต่อไปที่เพดานตรงหน้า
+
 จากนั้นจึงเริ่มลองกวาดสายตามองรอบๆ ห้อง
-ด้วยแรงอันน้อยนิดที่มี คุณทำได้เพียงแค่พลิกตัวไปมาอยู่สองสามครั้งเท่านั้น
+ด้วยแรงอันน้อยนิดที่มี 
+
+คุณทำได้เพียงแค่พลิกตัวไปมาอยู่สองสามครั้งเท่านั้น
 คุณตัดสินใจกลับมาตั้งหลักอีกครั้ง
+
 จ้องมองไปยังเพดานผืนเดิมที่ว่างเปล่า
 มีเพียงหลอดไฟเพดานที่ไร้ซึ่งแสงไฟ
 
-
 คุณจ้องมองไปในความว่างเปล่าอยู่นานสองนาน
 เปลือกตาของคุณเบาขึ้นจนสามารถเปิดได้อย่างเต็มที่
+
 ร่างกายของคุณเองก็ดูจะเบาขึ้นมาแล้วเหมือนกัน
 ตอนนี้มีเพียงอุปสรรคเดียวเท่านั้น`,
-  day0_after_intro:        '[ เนื้อเรื่องหลังจบมินิเกมแรก ]',
-  day0_choice1_optA_story: '[ เนื้อเรื่องทางเลือกที่ 1 (วันที่ 1) — ห้องเรียน ]',
-  day0_choice1_optB_story: '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 1) — ห้องเรียน ]',
-  day0_converge_story:     '[ เนื้อเรื่องที่มาบรรจบกัน (วันที่ 1) — กลับห้องนอน ]',
+  day0_after_intro: ` ลุกขึ้นคุณออกแรงอีกครั้งและครั้งนี้
+  คุณสามารถดันตัวเองออกจากฟูกได้ในที่สุด`,
+
+  day0_before_choice1: `ชั่วโมงแรกคือคาบเรียนภาษาอังกฤษ
+คุณได้รับกระดาษที่เต็มไปด้วยโจทย์มากมาย
+
+หลังจากการอธิบายของอาจารย์ผู้สอน คุณก็ไม่ปล่อยให้เวลาเสียไปเปล่าๆ
+หยิบอุปกรณ์สำหรับการเรียนออกมาและ..........
+
+คุณลองกดปากกาลงบนกระดาษอยู่สักพัก
+สิ่งที่เกิดขึ้นคือ....
+
+ความว่างเปล่า
+ไม่มีน้ำหมึกไหลออกมาจากลูกกลิ้นที่ปลายปากกาเลยสักหยด
+
+ไม่ต้องสงสัยเลยว่าตอนนี้เกิดอะไรขึ้น
+คุณพยายามความหาปากกาสำรองจากในกระเป๋า
+
+แต่เหมือนกับว่าโชคชตาจะไม่ได้ใจดีกับคุณขนาดนั้น
+ความพยายามของคุณนั้นไร้ประโยชน์
+
+แม้ในสถานการณ์แบบนี้ มันยังคงมีทางหนึ่งที่จะช่วยคุณให้รอดได้
+ทางเดียวที่คุณคิดออก... `,
+  day0_choice1_optA_story: `..........................................
+
+  ............................
+
+  ............................
+
+  ............................
+
+    คุณถอนหายใจเบาๆออกมา `,
+
+  day0_choice1_optB_story: `คุณมองหาใครบางคนเพื่อขอความช่วยเหลือ
+
+คุณรู้จักพวกเขาเพียงแค่ผิวเผินเท่านั้น
+
+ความลังเลของคุณเริ่มก่อตัวขึ้นมาในตอนนั้น
+
+ในใจยังคงคิดจะย้อนกลับและต้องการเวลาตัดสินใจใหม่อีกครั้ง
+
+การกระทำของคุณอาจสร้างปัญหาให้ใครก็ได้
+
+เดิมทีมันก็เกิดจากความสะเพร่าของตัวคุณเอง
+
+การต้องพึ่งคนอื่นในสภาพแบบนี้นั้น
+
+มันเป็นสิ่งที่ไม่ควรที่จะเกิดขึ้นด้วยซ้ำ
+
+คุณกลับมาคิดทบทวนอีกครั้ง
+
+การกระทำนั้นมีผลที่ตามมาเสมอ
+
+หากแต่ว่าคุณต้องเลือก
+
+ระหว่างตัวคุณเอง หรือสิ่งอื่น
+
+คุณคิดใหม่อีกครั้ง
+
+และครั้งนี้ คุณตัดสินใจ.... `,
+  day0_converge_story:    ` คุณสะกิดคนที่อยู่ใกล้ที่สุดและเอ่ยปากขอความช่วยเหลือ
+
+แม้จะใช้เวลาสักพัก แต่ท้ายที่สุดแล้ว คุณก็ได้สิ่งที่ต้องการมา
+
+คุณเอ่ยขอบคุณเขาอย่างสุภาพ และเหมือนว่าเขาจะยิ้มอ่อนๆอยู่นิดหน่อยด้วย
+
+เอาล่ะ ตอนนี้ก็ถึงเวลา ` ,
+  day0_choice1_afterName_story: '[ เนื้อเรื่องหลังตั้งชื่อตัวละคร (วันที่ 1) ]',
   day0_choice2_optA_story: '[ เนื้อเรื่องทางเลือก A รอบสอง (วันที่ 1) ]',
   day0_choice2_optB_story: '[ เนื้อเรื่องทางเลือก B รอบสอง (วันที่ 1) ]',
   day0_pre_ending:         '[ เนื้อเรื่องก่อนจบวันที่ 1 ]',
@@ -273,6 +337,53 @@ const DAY_CONFIGS: DayConfig[] = [
   },
 ];
 
+// ─────────────────────────────────────────────
+//  ชื่อปุ่มทางเลือกทั้งหมด (แก้ตรงนี้ที่เดียว เพื่อเปลี่ยนชื่อปุ่มทุกอันในเกม)
+//  - choice1OptA / choice1OptB  = ปุ่มหน้าจอ "ทางเลือกที่ 1 / 2" (จอ choice1)
+//  - confirmYes / confirmNo     = ปุ่มหน้าจอ "มั่นใจกับทางเลือกไหม" (เฉพาะวันที่มี hasConfirm)
+//  - choice2OptA / choice2OptB  = ปุ่มหน้าจอ "ทางเลือก A / B" (จอ choice2)
+//  แก้ค่าใน object ของแต่ละวัน (index 0 = วันที่ 1, 1 = วันที่ 2, 2 = วันที่ 3) ได้อิสระ
+// ─────────────────────────────────────────────
+type ChoiceLabels = {
+  choice1OptA: string;
+  choice1OptB: string;
+  confirmYes: string;
+  confirmNo: string;
+  choice2OptA: string;
+  choice2OptB: string;
+};
+
+const CHOICE_LABELS: Record<number, ChoiceLabels> = {
+  0: {
+    choice1OptA: 'นั่งเงียบๆ',
+    choice1OptB: 'ขอยืมปากกาจากใครสักคน',
+    confirmYes: 'มั่นใจ',
+    confirmNo: 'ไม่มั่นใจ',
+    choice2OptA: 'ทางเลือก A',
+    choice2OptB: 'ทางเลือก B',
+  },
+  1: {
+    choice1OptA: 'ทางเลือกที่ 1',
+    choice1OptB: 'ทางเลือกที่ 2',
+    confirmYes: 'มั่นใจ',
+    confirmNo: 'ไม่มั่นใจ',
+    choice2OptA: 'ทางเลือก A',
+    choice2OptB: 'ทางเลือก B',
+  },
+  2: {
+    choice1OptA: 'ทางเลือกที่ 1',
+    choice1OptB: 'ทางเลือกที่ 2',
+    confirmYes: 'มั่นใจ',
+    confirmNo: 'ไม่มั่นใจ',
+    choice2OptA: 'ทางเลือก A',
+    choice2OptB: 'ทางเลือก B',
+  },
+};
+
+function getChoiceLabels(dayIndex: number): ChoiceLabels {
+  return CHOICE_LABELS[dayIndex] ?? CHOICE_LABELS[0];
+}
+
 const NEXT_LABELS: Record<string, string> = {
   dialog:      'ถัดไป ▶',
   dialogStart: 'เริ่มผจญภัย ▶',
@@ -288,12 +399,14 @@ type StoryNode =
   | 'intro'
   | 'introMiniGame'
   | 'afterIntro'
+  | 'beforeChoice1'
   | 'atSchool'
   | 'choice1'
   | 'choice1_optA'
   | 'choice1_optB'
   | 'choice1_confirm'
   | 'choice1_name'
+  | 'choice1_afterName'
   | 'converge'
   | 'choice2'
   | 'choice2_optA'
@@ -304,25 +417,6 @@ type StoryNode =
 type MiniGameSource = 'intro' | 'choice1' | 'choice2';
 
 type Screen = 'opening_dialog' | 'story' | 'final_narration' | 'recap';
-
-// ─────────────────────────────────────────────
-//  STABLE, TOP-LEVEL UI COMPONENTS
-//  (แยกออกมานอก MainGamePage เพื่อไม่ให้ถูกสร้างใหม่ทุกครั้งที่ re-render
-//   ระหว่าง typewriter กำลังพิมพ์ — นี่คือสาเหตุของบั๊กเดิมที่เคยแก้ไปแล้ว
-//   ["กดครั้งแรกแล้วข้อความขึ้นครบ + ข้ามไปเลยในคลิกเดียว"]
-//   เพราะปุ่มถูก unmount/remount ทุก 40ms ระหว่างพิมพ์)
-//
-//  หมายเหตุการจัดระเบียบรอบนี้ (ทำให้หน้าจอ "ไม่รกตา"):
-//  - คะแนน Hope/Fracture ย้ายออกจากกล่องเนื้อเรื่อง ไปเป็น HUD ลอยมุมจอ
-//    แทน — ไม่ต้องส่ง props hope/fracture/showScore ไปทุกกล่องอีกต่อไป
-//  - กล่องเนื้อเรื่องเปลี่ยนเป็นการ์ดกระจกฝ้า (glass) ลอยกลางล่างจอ
-//    แคบลง มีมุมโค้ง มีป้ายชื่อฉากลอยอยู่ขอบบนกล่อง แทนแถบเต็มความกว้างจอเดิม
-//  - พื้นหลังฉากใช้ gradient มืดเฉพาะโซนล่าง (จุดที่มีตัวหนังสือ) แทนภาพมืดทึบทั้งจอ
-//    ทำให้ภาพประกอบยังมองเห็นชัดเจนแต่ตัวหนังสือยังอ่านง่าย
-//  - เนื้อเรื่องใช้ whitespace-pre-line เพื่อคงจังหวะการเว้นบรรทัดที่ผู้เขียนตั้งใจไว้
-//    (ประโยคสั้นๆ ทีละบรรทัดตามต้นฉบับใน TEXT) แทนที่จะถูกรวบเป็นบรรทัดเดียว
-//  - กล่องเนื้อเรื่องมี max-height + overflow-y-auto กันข้อความยาวล้นจอ
-// ─────────────────────────────────────────────
 
 function ScoreHUD({ hope, fracture }: { hope: number; fracture: number }) {
   return (
@@ -400,18 +494,6 @@ function Box({
   );
 }
 
-/**
- * StoryBox — จุดสำคัญของการแก้บั๊ก
- *
- * onAdvance คือ "ผู้ตัดสินใจเพียงจุดเดียว" ว่าจะทำอะไรเมื่อผู้เล่นกด:
- *  - ถ้ากำลังพิมพ์อยู่ (isTyping)      -> แสดงข้อความให้ครบทันที (ไม่ไปไหนต่อ)
- *  - ถ้าพิมพ์ครบแล้วแต่ยังมี segment ถัดไป -> เลื่อนไป segment ถัดไป (เริ่มพิมพ์ใหม่)
- *  - ถ้าพิมพ์ครบและอยู่ segment สุดท้าย   -> เรียก next() เพื่อไปฉาก/โหนดถัดไป
- *
- * segmentIndex ถูกใช้เป็น React key ของย่อหน้า เพื่อให้ทุกครั้งที่เปลี่ยน segment
- * ข้อความจะ fade เข้าใหม่เบาๆ (ใช้ animate-fadeUp เดิมที่มีอยู่แล้ว) แทนที่จะ
- * โผล่มาแข็งๆ ทันที ช่วยให้จังหวะการเล่าเรื่องดูนุ่มนวลขึ้น
- */
 function StoryBox({
   isTyping,
   displayedText,
@@ -527,6 +609,16 @@ export default function MainGamePage() {
   const [hope, setHope] = useState(0);
   const [fracture, setFracture] = useState(0);
 
+  // ── ใช้ติดตามว่าใน "ทางเลือกที่ 1" ของรอบนี้ ผู้เล่นได้รับ Fracture ไปแล้วหรือยัง
+  //    ตามไดอะแกรม: ถ้าทางเลือกที่ 1 ให้ Fracture ไปแล้ว จะไม่ได้รับ Hope ซ้ำจากขั้นตอนตั้งชื่อ ──
+  const [choice1FractureThisRound, setChoice1FractureThisRound] = useState(false);
+
+  // ── บันทึกการกระทำของผู้เล่น สำหรับใช้สรุปในหน้า Recap ──
+  const [actionLog, setActionLog] = useState<string[]>([]);
+  function logAction(entry: string) {
+    setActionLog(prev => [...prev, entry]);
+  }
+
   const currentBg = getBackground(dayIndex, node);
 
   // ── คำบรรยายเปิดเกม ──
@@ -559,6 +651,7 @@ export default function MainGamePage() {
   }), []);
 
   const dayConfig = DAY_CONFIGS[dayIndex];
+  const choiceLabels = getChoiceLabels(dayIndex);
   const showScoreHUD = screen === 'story' && node !== 'intro';
   const currentSegmentText = storySegments[segmentIndex] ?? '';
 
@@ -666,14 +759,6 @@ export default function MainGamePage() {
     }
   }
 
-  /**
-   * ตัวจัดการเดียวสำหรับ "กดถัดไป" ระหว่างเดินเรื่อง (แทนที่ของเดิมที่มี
-   * ทั้ง proceedStory และ StoryBox.handleClick เช็คเงื่อนไขซ้ำกันสองจุด)
-   *
-   * - พิมพ์ไม่ครบ -> โชว์ข้อความให้ครบ แล้วหยุด (คลิกเดียวทำแค่นี้)
-   * - พิมพ์ครบ + ยังมี segment ถัดไป -> ไป segment ถัดไป แล้วหยุด
-   * - พิมพ์ครบ + อยู่ segment สุดท้ายแล้ว -> เรียก nextNode() เพื่อไปฉากถัดไป
-   */
   function handleStoryAdvance(nextNode: () => void) {
     if (isTyping) {
       if (timerRef.current) {
@@ -697,6 +782,7 @@ export default function MainGamePage() {
     setDayIndex(idx);
     setScreen('story');
     setNode('intro');
+    setChoice1FractureThisRound(false);
   }
 
   function handleIntroNext() {
@@ -723,9 +809,11 @@ export default function MainGamePage() {
       setNode('afterIntro');
     } else if (source === 'choice1') {
       setHope(h => h + 1);
+      logAction(`${dayConfig.dayLabel} · ทางเลือกที่ 2 (ผ่านมินิเกม) → ✨ Hope +1`);
       setNode('converge');
     } else if (source === 'choice2') {
       setHope(h => h + 1);
+      logAction(`${dayConfig.dayLabel} · ทางเลือก B (ผ่านมินิเกม) → ✨ Hope +1`);
       setNode('preEnding');
     }
   }
@@ -737,31 +825,63 @@ export default function MainGamePage() {
 
   function handleChoice1OptAContinue() {
     setFracture(f => f + 1);
+    setChoice1FractureThisRound(true);
+    logAction(`${dayConfig.dayLabel} · ทางเลือกที่ 1 → 💔 Fracture +1`);
     setNode('converge');
   }
 
   function handleChoice1OptB() {
+    // ตามไดอะแกรม: ทางเลือกที่ 2 ต้องโชว์เนื้อเรื่องของมันก่อนเสมอ
+    // (ถ้าวันนั้นมีจอ "มั่นใจกับทางเลือกไหม" จะถามต่อหลังอ่านเนื้อเรื่องจบ)
+    setNode('choice1_optB');
+  }
+
+  function handleChoice1OptBAdvance() {
     if (dayConfig.choice1.hasConfirm) {
       setNode('choice1_confirm');
     } else {
-      setNode('choice1_optB');
+      handleChoice1OptBFinish();
     }
   }
 
+  // ── มั่นใจ/ไม่มั่นใจ (เฉพาะวันที่มี hasConfirm) ──
+  // ตามไดอะแกรม: "ไม่มั่นใจ" ย้อนไปอ่านเนื้อเรื่องทางเลือกที่ 1 ซ้ำ (แล้วได้ Fracture)
+  // ส่วน "มั่นใจ" ไปต่อที่เนื้อเรื่องบรรจบกันทันที (ยังไม่ได้ Hope ณ จุดนี้)
   function handleConfirmYes() {
-    setNode('choice1_name');
+    setNode('converge');
   }
 
   function handleConfirmNo() {
     setNode('choice1_optA');
   }
 
+  // ตามไดอะแกรม: หลัง "เนื้อเรื่องทางเลือกเหมือนกัน" (converge) ทั้งสองเส้นทาง (Fracture/Hope)
+  // จะไปเจอหน้าจอ "ตั้งชื่อผู้เล่น" ต่อกัน (เฉพาะวันที่มี hasConfirm เท่านั้น)
+  function handleConvergeAdvance() {
+    if (dayConfig.choice1.hasConfirm) {
+      setNode('choice1_name');
+    } else {
+      setNode('choice2');
+    }
+  }
+
   function handleConfirmName() {
     const name = inputName.trim();
     if (!name) { inputRef.current?.focus(); return; }
     setPlayerName(name);
-    setHope(h => h + 1);
-    setNode('converge');
+    setNode('choice1_afterName');
+  }
+
+  // ตามไดอะแกรม: "ถ้าได้รับ Fracture แล้วจะไม่ได้ Hope หนึ่งหน่วยของอันนี้"
+  // -> ให้ Hope เฉพาะกรณีที่ทางเลือกที่ 1 รอบนี้ยังไม่เคยได้ Fracture มาก่อน
+  function handleChoice1AfterNameContinue() {
+    if (!choice1FractureThisRound) {
+      setHope(h => h + 1);
+      logAction(`${dayConfig.dayLabel} · ตั้งชื่อ "${playerName}" → ✨ Hope +1`);
+    } else {
+      logAction(`${dayConfig.dayLabel} · ตั้งชื่อ "${playerName}" (ได้รับ Fracture ไปแล้ว จึงไม่ได้ Hope เพิ่ม)`);
+    }
+    setNode('choice2');
   }
 
   // ── ทางเลือกที่ 2 ──
@@ -771,6 +891,7 @@ export default function MainGamePage() {
 
   function handleChoice2OptAContinue() {
     setFracture(f => f + 1);
+    logAction(`${dayConfig.dayLabel} · ทางเลือก A → 💔 Fracture +1`);
     setNode('preEnding');
   }
 
@@ -783,6 +904,7 @@ export default function MainGamePage() {
     if (cfg.hasConfirm) return;
     if (cfg.optBMiniGame === 'none') {
       setHope(h => h + 1);
+      logAction(`${dayConfig.dayLabel} · ทางเลือกที่ 2 → ✨ Hope +1`);
       setNode('converge');
     } else {
       launchMiniGame(cfg.optBMiniGame, 'choice1');
@@ -792,6 +914,7 @@ export default function MainGamePage() {
   function handleChoice2OptBFinish() {
     if (dayConfig.choice2.optBMiniGame === 'none') {
       setHope(h => h + 1);
+      logAction(`${dayConfig.dayLabel} · ทางเลือก B → ✨ Hope +1`);
       setNode('preEnding');
     } else {
       launchMiniGame(dayConfig.choice2.optBMiniGame, 'choice2');
@@ -814,8 +937,10 @@ export default function MainGamePage() {
     setNode('intro');
     setHope(0);
     setFracture(0);
+    setChoice1FractureThisRound(false);
     setPlayerName('');
     setInputName('');
+    setActionLog([]);
     router.push('/');
   }
 
@@ -907,6 +1032,16 @@ export default function MainGamePage() {
               isTyping={isTyping}
               displayedText={displayedText}
               segmentIndex={segmentIndex}
+              onAdvance={() => handleStoryAdvance(() => setNode('beforeChoice1'))}
+            />
+          )}
+
+          {/* ── ใหม่: จุดพักเนื้อเรื่องก่อนขึ้นจอทางเลือก 1 (ตามไดอะแกรม ภาพ2) ── */}
+          {node === 'beforeChoice1' && (
+            <StoryBox
+              isTyping={isTyping}
+              displayedText={displayedText}
+              segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(() => setNode('choice1'))}
             />
           )}
@@ -924,8 +1059,8 @@ export default function MainGamePage() {
             <ChoiceBox
               label={`ทางเลือก – ${dayConfig.dayLabel}`}
               choices={[
-                { label: 'ทางเลือกที่ 1', color: 'green',  onClick: handleChoice1OptA },
-                { label: 'ทางเลือกที่ 2', color: 'purple', onClick: handleChoice1OptB },
+                { label: choiceLabels.choice1OptA, color: 'green',  onClick: handleChoice1OptA },
+                { label: choiceLabels.choice1OptB, color: 'purple', onClick: handleChoice1OptB },
               ]}
             />
           )}
@@ -939,12 +1074,14 @@ export default function MainGamePage() {
             />
           )}
 
-          {node === 'choice1_optB' && !dayConfig.choice1.hasConfirm && (
+          {/* ── แก้: ทางเลือกที่ 2 ต้องโชว์เนื้อเรื่องก่อนเสมอ ไม่ว่าจะมีจอยืนยันหรือไม่
+              (ของเดิมข้ามไปจอยืนยันทันทีสำหรับวันที่มี hasConfirm) ── */}
+          {node === 'choice1_optB' && (
             <StoryBox
               isTyping={isTyping}
               displayedText={displayedText}
               segmentIndex={segmentIndex}
-              onAdvance={() => handleStoryAdvance(handleChoice1OptBFinish)}
+              onAdvance={() => handleStoryAdvance(handleChoice1OptBAdvance)}
             />
           )}
 
@@ -952,12 +1089,23 @@ export default function MainGamePage() {
             <ChoiceBox
               label="มั่นใจกับทางเลือกไหม"
               choices={[
-                { label: 'มั่นใจ',    color: 'green', onClick: handleConfirmYes },
-                { label: 'ไม่มั่นใจ', color: 'red',   onClick: handleConfirmNo },
+                { label: choiceLabels.confirmYes, color: 'green', onClick: handleConfirmYes },
+                { label: choiceLabels.confirmNo,  color: 'red',   onClick: handleConfirmNo },
               ]}
             />
           )}
 
+          {node === 'converge' && (
+            <StoryBox
+              isTyping={isTyping}
+              displayedText={displayedText}
+              segmentIndex={segmentIndex}
+              onAdvance={() => handleStoryAdvance(handleConvergeAdvance)}
+            />
+          )}
+
+          {/* ── ตามไดอะแกรม: หน้าตั้งชื่อผู้เล่นอยู่ "หลัง" เนื้อเรื่องบรรจบกัน (converge)
+              และเกิดขึ้นได้ทั้งสองเส้นทาง (Fracture หรือ Hope) ของทางเลือกที่ 1 ── */}
           {node === 'choice1_name' && (
             <Box label="ตั้งชื่อตัวละคร">
               <p className="mb-4 text-sm text-blue-300">ใส่ชื่อตัวเอกของเรื่องราวด้านล่าง</p>
@@ -978,12 +1126,12 @@ export default function MainGamePage() {
             </Box>
           )}
 
-          {node === 'converge' && (
+          {node === 'choice1_afterName' && (
             <StoryBox
               isTyping={isTyping}
               displayedText={displayedText}
               segmentIndex={segmentIndex}
-              onAdvance={() => handleStoryAdvance(() => setNode('choice2'))}
+              onAdvance={() => handleStoryAdvance(handleChoice1AfterNameContinue)}
             />
           )}
 
@@ -991,8 +1139,8 @@ export default function MainGamePage() {
             <ChoiceBox
               label={`ทางเลือก – ${dayConfig.dayLabel}`}
               choices={[
-                { label: 'ทางเลือก A', color: 'green',  onClick: handleChoice2OptA },
-                { label: 'ทางเลือก B', color: 'purple', onClick: handleChoice2OptB },
+                { label: choiceLabels.choice2OptA, color: 'green',  onClick: handleChoice2OptA },
+                { label: choiceLabels.choice2OptB, color: 'purple', onClick: handleChoice2OptB },
               ]}
             />
           )}
@@ -1053,7 +1201,9 @@ export default function MainGamePage() {
         />
       )}
 
-      {/* ── สรุปผล ── */}
+      {/* ── สรุปผล ──
+          ตามไดอะแกรม: "Recap การกระทำของผู้เล่นตลอดทั้งเกมว่าทำอะไรไปบ้าง"
+          จึงโชว์คะแนนรวม + รายการทางเลือกที่ผู้เล่นกดไปตลอดทั้ง 3 วัน ── */}
       {screen === 'recap' && (
         <Box label="สรุปผล">
           <p className="text-lg text-yellow-300">
@@ -1063,6 +1213,23 @@ export default function MainGamePage() {
             <span className="text-cyan-300">✨ Hope: {hope}</span>
             <span className="text-red-300">💔 Fracture: {fracture}</span>
           </div>
+
+          {actionLog.length > 0 && (
+            <div className="mt-4 max-h-[30vh] overflow-y-auto rounded-lg border border-blue-400/20 bg-black/20 px-4 py-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-blue-300">
+                เส้นทางที่คุณเลือก
+              </p>
+              <ul className="space-y-1.5 text-sm text-slate-100/90">
+                {actionLog.map((entry, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="text-blue-400">•</span>
+                    <span>{entry}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <p className="mt-3 text-sm text-blue-300">ขอบคุณที่เล่นเกมนี้ 🌟</p>
           <div className="mt-4 text-right">
             <button onClick={handleRestart} className="btn-secondary">
