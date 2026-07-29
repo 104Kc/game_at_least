@@ -33,6 +33,7 @@ const DAY_BACKGROUNDS: Record<number, Partial<Record<StoryNode, string>>> = {
     choice1_name: BG.classroomDay1,
     choice1_afterName: BG.classroomDay1,
     converge: BG.bedroom,
+    beforeChoice2: BG.bedroom,
     choice2: BG.bedroom,
     choice2_optA: BG.bedroom,
     choice2_optB: BG.bedroom,
@@ -46,6 +47,7 @@ const DAY_BACKGROUNDS: Record<number, Partial<Record<StoryNode, string>>> = {
     choice1_optA: BG.courtyardEveningDay2,
     choice1_optB: BG.courtyardEveningDay2,
     converge: BG.gardenDay2,
+    beforeChoice2: BG.gardenDay2,
     choice2: BG.gardenDay2,
     choice2_optA: BG.gardenDay2,
     choice2_optB: BG.gardenDay2,
@@ -58,6 +60,7 @@ const DAY_BACKGROUNDS: Record<number, Partial<Record<StoryNode, string>>> = {
     choice1_optA: BG.cafeteriaDay3,
     choice1_optB: BG.treeSpotDay3,
     converge: BG.bedroom,
+    beforeChoice2: BG.bedroom,
     choice2: BG.bedroom,
     choice2_optA: BG.bedroom,
     choice2_optB: BG.bedroom,
@@ -79,6 +82,7 @@ const STORY_NODE_TEXT_KEY: Partial<Record<StoryNode, string>> = {
   choice1_optB: 'choice1_optB_story',
   converge: 'converge_story',
   choice1_afterName: 'choice1_afterName_story',
+  beforeChoice2: 'before_choice2',
   choice2_optA: 'choice2_optA_story',
   choice2_optB: 'choice2_optB_story',
   preEnding: 'pre_ending',
@@ -252,15 +256,159 @@ const TEXT: Record<string, string> = {
 ปล่อยให้ความสามารถของคุณเป็นคนตัดสินเถอะ
 
 ...*ผีเสื้อเริ่มขยับปีกอีกครั้ง*... `,
-  day0_choice2_optA_story: '[ เนื้อเรื่องทางเลือก A รอบสอง (วันที่ 1) ]',
-  day0_choice2_optB_story: '[ เนื้อเรื่องทางเลือก B รอบสอง (วันที่ 1) ]',
-  day0_pre_ending:         '[ เนื้อเรื่องก่อนจบวันที่ 1 ]',
+  day0_before_choice2:     ` คุณถอดกระเป๋าสะพายออกจากบ่าและวางที่มุมหนึ่งของห้อง
 
-  day1_intro:               '[ เริ่มเนื้อเรื่องวันที่ 2 — ห้องนอน ]',
-  day1_at_school:           '[ เนื้อเรื่องตอนอยู่โรงเรียน — ลานกว้าง ]',
+พ่อแม่ของคุณดูเหมือนจะยังไม่กลับบ้าน
+
+ยังพอมีเวลาเหลืออยู่ก่อนที่พวกเขาจะมา
+
+คุณมองไปรอบๆห้องของตัวเอง
+
+ทั้งข้าวของ เฟอร์นีเจอร์ต่างๆนั้นยังคงอยู่ในจุดที่คุ้นเคย
+
+แม้จะไม่รู้สึกมีปัญหากับมันเท่าไหร่ คุณพอใจกับความเป็นอยู่แบบนี้มานานแล้ว
+
+แต่คุณก็เกิดนึกบางอย่างขึ้นมาได้
+
+คุณโดนแม่บ่นทุกครั้งว่าสภาพห้องของคุณนั้นมันรกเกินไป
+
+แต่คุณก็ไม่เคยเก็บมันมาใส่ใจ เพราะคุณไม่ได้คิดแบบนั้น
+
+แน่นอนว่าคุณนึกภาพห้องของคุณในสภาพที่ดีกว่านี้ออกอยู่แล้ว
+
+แต่มันจะไปสำคัญอะไรในเมื่อคุณไม่ได้มีปัญหากับมัน จริงมั้ย?
+
+...........
+
+ถึงอย่างงั้น...
+
+คุณก็เคยแอบคิด
+
+ลองจัดห้องใหม่ให้ดูดีกว่านี้ดีมั้ยนะ?
+
+แต่คุณจำเป็นจะต้องเสียแรงมาทำอะไรแบบนี้จริงๆเหรอ?
+
+คุณถามตัวเองอยู่แบบนั้นวนไป
+
+ยังไงเสีย สักวันห้องของคุณมันก็อาจจะกลับมาเป็นสภาพเดิม
+
+การยอมเหนื่อยเพื่อเพิ่มความสะดวกสบายชั่วคราวนั้น มันคุ้มหรือเปล่า
+
+ไม่ว่ายังไง....
+
+การตัดสินใจมันก็อยู่ที่คุณอยู่ดี `,
+  day0_choice2_optA_story: ` แน่ล่ะ มันจะไม่คุ้มเสียแรง
+  
+  คุณพอใจกับสิ่งที่เป็นอยู่ตอนนี้
+  
+  แต่นั่นก็เป็นการตัดโอกาสที่จะได้ลองทำอะไรเพื่อตัวเองไปเช่นกัน `,
+  day0_choice2_optB_story: ` ไม่มีเวลาให้เสียอีกต่อไป
+
+  ไม่ว่าการตัดสินใจนี้มันจะคุ้มหรือไม่ 
+  
+  พูดตามตรง คุณคงไม่ต้องเก็บมาใส่ใจหรอก
+  
+  คุณโยนอะไรก็ตามในหัวตอนนั้นทิ้งไป และเริ่มลงมือ `,
+  day0_pre_ending:         ` เวลาในหนึ่งวันนั้นช่างแสนสั้น
+
+คุณมองออกไปนอกหน้าต่าง
+
+ท้องฟ้ายามราตรีนั้นให้ความรู้สึกเงียบสงบ เหมือนดั่งทุกครั้ง....
+
+คุณไม่แน่ใจว่าครั้งนี้มันเงียบกว่าปกติหรือเปล่า
+
+คุณตอบไม่ได้ และดูเหมือนจะไม่ได้สนใจเรื่องความแตกต่างนั้นอยู่แล้วด้วย
+
+ในขณะเดียวกันนั้นเอง
+
+มีผีเสื้อตัวหนึ่งบินมาเกาะที่หน้าต่าง
+
+ดูเหมือนจะเป็นผีเสื้อกลางคืน
+
+พวกมันมักถูกพบได้ค่อนข้างบ่อย สำหรับคุณมันจึงไม่ใช่เรื่องพิเศษอะไร
+
+แต่บางทีก็มีความคิดที่ว่า ตัวเรากับผีเสื้อกลางคืนนั้นคล้ายกันอยู่นิดหน่อย
+
+รู้สึกมีชีวิตในช่วงเวลาที่เงียบสงบแบบนี้
+
+โบยบินภายใต้แสงจันทร์ บนท้องฟ้ากว้างใหญ่
+
+แต่ปีกของผีเสื้อนั้นช่างบอบบาง
+
+หากต้องแบกรับและสร้างสรรบางสิ่งด้วยปีกคู่นั้นแล้ว
+
+คุณจะทำมันได้จริงๆมั้ยนะ? `,
+
+  day1_intro:  `  อ่า ไม่นานก็วนกลับมาอีกแล้ว
+
+เสียงปวดหูที่คุ้นเคย
+
+แม้คุณจะชินกับมันมาสักพักแล้วก็ตาม แต่มันก็ยังน่ารำคาญแบบเสมอต้นเสมอปลายอยู่ดี
+
+แต่ยังไงก็ตาม ว่ากันตามหน้าที่มันถือว่าทำได้ดีเลยทีเดียว
+
+ส่วนคุณเอง....
+
+คงมีแต่ต้องลองอีกครั้ง...
+
+....... เหมือนกับทุกวัน 
+
+คุณลุกขึ้น 
+
+อ่า.... นึกว่ามันจะง่ายขึ้นแล้วนะ
+
+เอาล่ะ.... คงต้องจริงจังกันหน่อยแล้วล่ะ
+
+คุณหายใจเข้าอย่างแรง
+
+ลุกขึ้น !!!!!!
+
+ต้องให้มันได้อย่างงี้สิ `,
+  day1_at_school:  `ดูเหมือนวันนี้จะมีกิจกรรมพิเศษที่หาได้ยาก
+
+เอาตรงๆมันก็ไม่ได้พิเศษอะไรมาก
+
+ก็แค่การโดนใช้แรงงานเพื่อแลกกับคะแนนพิเศษ
+
+แม้แต่รายละเอียดคุณก็จำไม่ได้ด้วยซ้ำ คุณรู้เพียงแค่ ต้องมาทำความสะอาดสถานที่
+
+คุณได้เลือกทำในสิ่งที่เข้าใจได้ง่ายที่สุดอย่างนึง
+
+แค่..... เก็บกวาดใบไม้...
+
+และ.... เศษขยะ หรืออะไรก็แล้วแต่ คุณจำได้ไม่มากนัก
+
+ยังไงเสีย คุณคงอยากทำให้มันจบๆไปได้แล้ว
+
+อย่างที่คาดไว้
+
+คุณและคนอื่นๆทำงานได้น่าประทับใจเลยทีเดียว
+
+เพียงเท่านี้หน้าที่ของคุณก็ได้จบลงแล้ว
+
+ในขณะที่คนอื่นๆทะยอยกันไปพักผ่อน
+
+คุณก็ได้เหลือบไปเห็นว่า
+
+ยังคงมีพื้นที่อีกส่วนหนึ่งที่ยังทำความสะอาดไม่เสร็จ
+
+แน่นอนว่าสิ่งนั้นไม่ได้เกี่ยวอะไรกับความรับผิดชอบของคุณ
+
+หากจะเลือกเมินเฉยมันไปเลยคุณก็ทำได้
+
+แต่แค่แว็ปนึง....
+
+ถ้าลองยื่นมือเข้าไปช่วยสักหน่อยก็คงไม่เสียหายอะไร
+
+จำนวนคนที่ทำความสะอาดดูจะน้อยกว่ากลุ่มที่คุณทำงานด้วยก่อนหน้านี้เป็นเท่าตัว
+
+ด้วยความต่างของจำนวณคน คุณเองก็รู้ดี
+
+แม้จะมีตัวคุณเพิ่มไปอีกสักหนึ่งคนมันคงไม่ต่างกันมากหรอก `,
   day1_choice1_optA_story:  '[ เนื้อเรื่องทางเลือกที่ 1 (วันที่ 2) ]',
   day1_choice1_optB_story:  '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 2) ]',
   day1_converge_story:      '[ เนื้อเรื่องที่มาบรรจบกัน (วันที่ 2) — สวน ]',
+  day1_before_choice2:      '[ เนื้อเรื่องก่อนทางเลือกรอบสอง (วันที่ 2) — สวน ]',
   day1_choice2_optA_story:  '[ เนื้อเรื่องทางเลือก A รอบสอง (วันที่ 2) ]',
   day1_choice2_optB_story:  '[ เนื้อเรื่องทางเลือก B รอบสอง (วันที่ 2) ]',
   day1_pre_ending:          '[ เนื้อเรื่องก่อนจบวันที่ 2 ]',
@@ -269,6 +417,7 @@ const TEXT: Record<string, string> = {
   day2_choice1_optA_story:  '[ เนื้อเรื่องทางเลือกที่ 1 (วันที่ 3) — โรงอาหาร ]',
   day2_choice1_optB_story:  '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 3) ]',
   day2_converge_story:      '[ เนื้อเรื่องที่มาบรรจบกัน (วันที่ 3) — กลับห้องนอน ]',
+  day2_before_choice2:      '[ เนื้อเรื่องก่อนทางเลือกรอบสอง (วันที่ 3) — ห้องนอน ]',
   day2_choice2_optA_story:  '[ เนื้อเรื่องทางเลือก A รอบสอง (วันที่ 3) ]',
   day2_choice2_optB_story:  '[ เนื้อเรื่องทางเลือก B รอบสอง (วันที่ 3) ]',
   day2_pre_ending:          '[ เนื้อเรื่องก่อนจบวันที่ 3 ]',
@@ -367,12 +516,12 @@ const CHOICE_LABELS: Record<number, ChoiceLabels> = {
     choice1OptB: 'ขอยืมปากกาจากใครสักคน',
     confirmYes: 'มั่นใจ',
     confirmNo: 'ไม่มั่นใจ',
-    choice2OptA: 'ทางเลือก A',
-    choice2OptB: 'ทางเลือก B',
+    choice2OptA: 'ปล่อยผ่าน',
+    choice2OptB: 'ทำความสะอาด',
   },
   1: {
-    choice1OptA: 'ทางเลือกที่ 1',
-    choice1OptB: 'ทางเลือกที่ 2',
+    choice1OptA: 'ไม่ช่วย',
+    choice1OptB: 'ช่วย',
     confirmYes: 'มั่นใจ',
     confirmNo: 'ไม่มั่นใจ',
     choice2OptA: 'ทางเลือก A',
@@ -416,6 +565,7 @@ type StoryNode =
   | 'choice1_name'
   | 'choice1_afterName'
   | 'converge'
+  | 'beforeChoice2'
   | 'choice2'
   | 'choice2_optA'
   | 'choice2_optB'
@@ -869,7 +1019,7 @@ export default function MainGamePage() {
     if (dayConfig.choice1.hasConfirm) {
       setNode('choice1_name');
     } else {
-      setNode('choice2');
+      setNode('beforeChoice2');
     }
   }
 
@@ -889,7 +1039,7 @@ export default function MainGamePage() {
     } else {
       logAction(`${dayConfig.dayLabel} · ตั้งชื่อ "${playerName}" (ได้รับ Fracture ไปแล้ว จึงไม่ได้ Hope เพิ่ม)`);
     }
-    setNode('choice2');
+    setNode('beforeChoice2');
   }
 
   // ── ทางเลือกที่ 2 ──
@@ -930,12 +1080,19 @@ export default function MainGamePage() {
   }
 
   // ── จบวัน / จบเกม ──
-  function handleDayEndNext() {
+  // ตามไดอะแกรม: วันสุดท้าย (วันที่ 3) ไม่มีหน้าจอ "จบเกมวันที่ X" แยกต่างหาก
+  // "เนื้อเรื่องก่อนจบเกม" (preEnding) ของวันสุดท้ายจะไปคำนวณ Hope/Fracture
+  // แล้วเข้าเนื้อเรื่องจบเกมทันที ส่วนวันที่ 1 และ 2 ยังคงผ่านหน้าจอ "จบเกมวันที่ X" ตามเดิม
+  function handlePreEndingAdvance() {
     if (dayIndex < DAY_CONFIGS.length - 1) {
-      goToDayStart(dayIndex + 1);
+      setNode('dayEnd');
     } else {
       setScreen('final_narration');
     }
+  }
+
+  function handleDayEndNext() {
+    goToDayStart(dayIndex + 1);
   }
 
   function handleRestart() {
@@ -1143,6 +1300,17 @@ export default function MainGamePage() {
             />
           )}
 
+          {/* ── ใหม่: จุดพักเนื้อเรื่องก่อนขึ้นจอทางเลือกรอบสอง (ตามไดอะแกรม node "เนื้อเรื่อง"
+              ที่อยู่ก่อน "ทางเลือก" รอบสองของทุกวัน — เดิมโค้ดข้ามตรงไปที่ choice2 ทันที) ── */}
+          {node === 'beforeChoice2' && (
+            <StoryBox
+              isTyping={isTyping}
+              displayedText={displayedText}
+              segmentIndex={segmentIndex}
+              onAdvance={() => handleStoryAdvance(() => setNode('choice2'))}
+            />
+          )}
+
           {node === 'choice2' && (
             <ChoiceBox
               label={`ทางเลือก – ${dayConfig.dayLabel}`}
@@ -1177,7 +1345,7 @@ export default function MainGamePage() {
               displayedText={displayedText}
               segmentIndex={segmentIndex}
               label="ก่อนจบวัน"
-              onAdvance={() => handleStoryAdvance(() => setNode('dayEnd'))}
+              onAdvance={() => handleStoryAdvance(handlePreEndingAdvance)}
             />
           )}
 
@@ -1189,7 +1357,7 @@ export default function MainGamePage() {
               <div className="mt-5 flex justify-end">
                 <NextButton
                   onClick={handleDayEndNext}
-                  label={dayIndex < DAY_CONFIGS.length - 1 ? NEXT_LABELS.dayEnd : NEXT_LABELS.dayEndLast}
+                  label={NEXT_LABELS.dayEnd}
                 />
               </div>
             </Box>
