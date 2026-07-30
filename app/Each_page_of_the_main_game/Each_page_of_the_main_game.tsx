@@ -14,10 +14,12 @@ const BG = {
   bedroom: encodeURI(IMG_BASE + 'ห้องนอน.jpg'),
   classroomDay1: encodeURI(IMG_BASE + 'ห้องเรียนวันที่ 1.jpg'),
   courtyardDay2: encodeURI(IMG_BASE + 'ลานกว้างวันที่2.jpg'),
-  courtyardEveningDay2: encodeURI(IMG_BASE + 'ลานกว้างตอนเย็นวันที่2.jpg'),
-  gardenDay2: encodeURI(IMG_BASE + 'สวนวันที่2.jpg'),
-  treeSpotDay3: encodeURI(IMG_BASE + 'จุดสงบใต้ต้นไม้วันที่3.jpg'),
+  courtyardEveningDay2: encodeURI(IMG_BASE + 'ลานกว้างตอนเย็น.jpg'),
+  gardenDay2: encodeURI(IMG_BASE + 'สวนที่มีเครื่องออกกำลังกายกลางแจ้ง.jpg'),
+  treeSpotDay3: encodeURI(IMG_BASE + 'จุดสงบใต้ต้นไม้.jpg'),
   cafeteriaDay3: encodeURI(IMG_BASE + 'โรงอาหารวันที่3.jpeg'),
+  goodEnding: encodeURI(IMG_BASE + 'ฉากจบแบบดี (Good Ending).jpg'),
+  badEnding: encodeURI(IMG_BASE + 'ฉากจบแบบแย่ (Bad Ending).jpg'),
 } as const;
 
 const DAY_BACKGROUNDS: Record<number, Partial<Record<StoryNode, string>>> = {
@@ -487,14 +489,152 @@ const TEXT: Record<string, string> = {
 
 ฝันดี `,
 
-  day2_intro:               '[ เริ่มเนื้อเรื่องวันที่ 3 — ห้องนอน ]',
-  day2_choice1_optA_story:  '[ เนื้อเรื่องทางเลือกที่ 1 (วันที่ 3) — โรงอาหาร ]',
-  day2_choice1_optB_story:  '[ เนื้อเรื่องทางเลือกที่ 2 (วันที่ 3) ]',
-  day2_converge_story:      '[ เนื้อเรื่องที่มาบรรจบกัน (วันที่ 3) — กลับห้องนอน ]',
-  day2_before_choice2:      '[ เนื้อเรื่องก่อนทางเลือกรอบสอง (วันที่ 3) — ห้องนอน ]',
-  day2_choice2_optA_story:  '[ เนื้อเรื่องทางเลือก A รอบสอง (วันที่ 3) ]',
-  day2_choice2_optB_story:  '[ เนื้อเรื่องทางเลือก B รอบสอง (วันที่ 3) ]',
-  day2_pre_ending:          '[ เนื้อเรื่องก่อนจบวันที่ 3 ]',
+  day2_intro:   ` เป็นเช้าของอีกวัน
+
+ไม่ว่าด้วยเหตุผลอะไรก็ตาม
+
+ดูเหมือนว่าวันนี้คุณจะตื่นก่อนที่จะได้เสียงนาฬิกาปลุกเสียอีก
+
+คุณเอื้อมมือไปหยิบโทรศีพท์ที่วางเอาไว้ตรงที่ประจำ และเปิดขึ้นมาดูเวลา
+
+ปรากฎว่ามันคือก่อนเวลาที่นาฬิกาปลุกจะดังเพียงแค่ 5 นาทีแบบพอดี
+
+ไม่รู้ทำไมเหมือนกัน แต่คุณเหมือนรู้สึกว่าได้เอาชนะอะไรบางอย่างมาได้
+
+คุณกดปิดการปลุกสำหรับวันนี้ ก่อนที่จะวางโทรศัพท์ของคุณลงที่เดิม
+
+คุณกลิ้งตัวกลับที่เดิม และมองขึ้นไปบนเพดานเหมือนอย่างเคย
+
+ในห้องที่ไม่ค่อยจะมีแสงผ่านเข้ามาห้องนี้นั้น
+
+ทั้งความเงียบ.... ความมืด.... หรือความเหงา...
+
+สิ่งนี้อยู่กับคุณมานานตั้งแต่จำความได้
+
+.........
+
+ลุกขึ้น!!!
+
+หืม?
+
+จู่ๆคุณก็ทำสีหน้าประหลาดใจ
+
+สิ่งที่คุณทำเมื่อกี้มันคืออะไร?
+
+มองไปรอบๆอ่า....
+
+ดูเหมือนคุณจะมาไกลอีกก้าวหนึ่งแล้ว
+
+คุณสามารถลุกขึ้นนั่งได้ตั้งแต่ครั้งแรกที่พยายาม
+
+นับว่าเป็นความสำเร็จได้มั้ยนะ?.......
+
+ไม่รู้สิ
+
+ไว้ค่อยเก็บเอาไปคิดทีหลังแล้วกัน
+
+ดูเหมือนว่าจะถึงเวลาพักทานอาหารกลางวันแล้วสิ
+
+โดยปกติแล้วเด็กมัธยมอย่างเราๆจะไปที่ไหนในเวลานี้กันนะ
+
+ที่จริงคำถามนี้ไม่ได้จำเป็นเลยด้วยซ้ำ
+
+"จะไปที่ไหนมันก็เรื่องของแต่ละคน" ก็คงจะเป็นแบบนั้นแหละนะ
+
+อย่างไรก็ดี คุณเองก็ต้องคิดเหมือนกันว่าจะทำอะไร
+
+ในหัวของคุณนึกออกอยู่สองอย่าง
+
+ถ้าไม่ไปที่โรงอาหารแบบคนปกติ ก็คงสักที่หนึ่งที่คุณสามารถทานอาหารได้อย่างสงบ
+
+ก็.... คงต้องเลือกล่ะนะ `,
+  day2_choice1_optA_story:  ` คุณเดินมาถึงโรงอาหารอย่างที่ตั้งใจไว้
+  
+ช่วงเวลาแบบนี้ การต้องฝ่าฝูงชนก็คงเป็นเรื่องที่เลี่ยงไม่ได้
+  
+เอาเถอะ มันคงไม่ใช่เรื่องใหญ่มากนักหรอก`,
+  day2_choice1_optB_story:  ` คุณใช้เวลาราวๆ 5 นาทีในการเดินไปยังจุดต่างๆที่คุณนึกออก
+
+ไม่ว่าจะสถานที่ๆเคยผ่านตา สถานที่ๆบรรยากาศเงียบสงบ
+  
+รวมไปถึงพื้นที่ใต้ร่มไม้ ใต้อาคารต่างๆ
+  
+และในที่สุด คุณก็พบจุดที่เหมาะสำหรับการนั่งเฉยๆ
+  
+และผ่อนคลายกับของว่างที่คุณซื้อก่อนออกมา
+
+ณ ต้นไม้ใหญ่ต้นหนึ่งในโรงเรียน
+
+ใต้ต้นไม้นั้นมีไม้ต้นนั้นมีทั้งโต๊ะและที่นั่งสำหรับพักผ่อน
+
+ดูเหมือนจะเป็นหนึ่งในจุดพักใจของโรงเรียน เพียงแต่ว่าช่วงเวลานี้ไม่ค่อยมีคนมาที่นี่สักเท่าไหร่
+
+นับว่าเป็นโชคดีของคุณที่กำลังตามหาความสงบและความสบายใจ
+
+บรรยากาศเองก็ถือว่ายอดเยี่ยม ไม่แน่คุณอาจจะแวะมาที่นี่อีกในอนาคต `,
+  day2_converge_story:      ` แต่ก็ยังน่าแปลกใจ คุณไม่ค่อยเห็นความอุดมสมบูรณ์บ่อยนักตอนอยู่ที่นี่
+
+หรืออาจจะเพราะคุณไม่เคยออกมาสำรวจกันนะ?
+
+ผีเสื้อตัวหนึ่งบินผ่านหน้าคุณไป
+
+ดูเหมือนว่า การตัดสินใจครั้งนี้จะเป็นกำไรสำหรับคุณแล้วล่ะนะ `,
+  day2_before_choice2:      ` คุณนั่งอยู่ที่โต๊ะอ่านหนังสือ
+
+มีเพียงแสงไฟจากเพดานที่ส่องลงมาในค่ำคืนนี้
+
+คุณเหมือนจะเขียนบางอย่างลงในสมุด
+
+เป็นไดอารี่ที่นานๆครั้งคุณจะหยิบมันขึ้นมาบันทึกเรื่องราวต่างๆ
+
+ครั้งนี้เหมือนกับว่าคุณกำลังบอกเล่าเรื่องราวต่างๆที่พบเจอมาตลอดช่วง 3 วันที่ผ่านมา
+
+คุณใส่ใจในรายละเอียดของเหตุการณ์เป็นอย่างดี และเหมือนจะตั้งคำถามกับการกระทำของตัวเองแทบจะตลอด
+
+อย่างไรก็ตาม
+
+คุณก็ได้รู้ว่าตัวเองนั้นได้มีการเปลี่ยนแปลงไป....
+
+หรืออาจจะยังคงเป็นคุณคนเดิมที่ยึดมั่นในตัวเองอยู่
+
+เรื่องนั้นคุณเองก็อยากจะหาคำตอบมันต่อไป
+
+แต่ก่อนจะสิ้นสุดบรรทัดสุดท้าย
+
+คุณได้ลองถามคำถามสำคัญกับตัวเอง
+
+ก่อนจะใช้เวลาเพียงชั่วครู่ในการนึกคำตอบ
+
+คำตอบของสิ่งที่คุณผ่านมาทั้งหมด
+
+กับคำถามที่ว่า...
+
+"คุณชอบตัวเองในตอนนี้หรือเปล่า?" `,
+  day2_choice2_optA_story:  ` นั่นสินะ..... ก็คงจะเป็นแบบนั้นแหละ `,
+  day2_choice2_optB_story:  ` คุณรู้สึกว่านั่นเป็นคำตอบที่พึงพอใจเลยทีเดียว `,
+  day2_pre_ending: ` คุณปิดสมุดไดอารี่ลง
+
+คำถามที่ถามตัวเองเมื่อครู่ยังคงค้างอยู่ในหัว
+
+ไม่ว่าคำตอบจะเป็นแบบไหน มันก็เป็นคำตอบของคุณเองอยู่ดี
+
+คุณลุกไปเปิดหน้าต่างรับลมเย็นๆก่อนนอน
+
+และก็ได้เห็นมันอีกครั้ง
+
+ผีเสื้อกลางคืนตัวเดิม เกาะอยู่ที่ขอบหน้าต่างเหมือนไม่เคยไปไหน
+
+ปีกของมันขยับเบาๆ ราวกับกำลังจะบินออกไปสักที่
+
+สามวันที่ผ่านมา คุณเลือกทางของตัวเองมาตลอด
+
+บางทางก็หนักอึ้ง บางทางก็ทำให้ใจเบาขึ้น
+
+คุณไม่รู้หรอกว่าทั้งหมดนี้จะพาไปที่ไหน
+
+รู้แต่เพียงว่า ปีกที่ขยับอยู่ตรงหน้า กำลังจะบินไปเช่นกัน
+
+คุณปิดไฟ และปล่อยให้ความมืดกลืนหายไปกับคืนสุดท้าย `,
 
   final_good: `คุณเคยได้ยินหรือเปล่า
 
@@ -602,12 +742,12 @@ const CHOICE_LABELS: Record<number, ChoiceLabels> = {
     choice2OptB: 'ออกกำลังกาย',
   },
   2: {
-    choice1OptA: 'ทางเลือกที่ 1',
-    choice1OptB: 'ทางเลือกที่ 2',
+    choice1OptA: 'โรงอาหาร',
+    choice1OptB: 'มองหาสถานที่สงบๆ',
     confirmYes: 'มั่นใจ',
     confirmNo: 'ไม่มั่นใจ',
-    choice2OptA: 'ทางเลือก A',
-    choice2OptB: 'ทางเลือก B',
+    choice2OptA: 'ไม่ชอบ',
+    choice2OptB: 'ชอบ',
   },
 };
 
@@ -625,6 +765,8 @@ const NEXT_LABELS: Record<string, string> = {
   restart:     'เริ่มเกมใหม่ ↺',
   default:     'ถัดไป ▶',
 };
+
+const SKIP_LABEL = 'ข้าม ⏭';
 
 type StoryNode =
   | 'intro'
@@ -692,6 +834,38 @@ function NextButton({
 }
 
 /**
+ * SkipButton — ปุ่ม "ข้าม" วางคู่กับปุ่มถัดไป
+ * กดแล้วจะข้ามไปยังจุดถัดไป (ทางเลือก/โหนดถัดจากเนื้อเรื่องปัจจุบัน) ทันที
+ * โดยไม่ต้องรอพิมพ์ข้อความจนจบ หรือกดถัดไปทีละ segment
+ */
+function SkipButton({
+  onClick,
+  label = SKIP_LABEL,
+  className = '',
+}: {
+  onClick: () => void;
+  label?: string;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={
+        'inline-flex items-center justify-center gap-2 rounded-lg ' +
+        'bg-slate-800/60 hover:bg-slate-700/70 active:bg-slate-800 ' +
+        'text-slate-300 font-medium px-5 py-2.5 text-base ' +
+        'border border-slate-500/40 shadow-md shadow-black/30 ' +
+        'transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 ' +
+        className
+      }
+    >
+      {label}
+    </button>
+  );
+}
+
+/**
  * Box — การ์ดกระจกฝ้าสำหรับเนื้อหาทุกประเภท (เนื้อเรื่อง / ทางเลือก / เมนูจบเกม ฯลฯ)
  * ลอยกลางล่างจอ แคบกว่าความกว้างจอเต็ม เพื่อไม่ให้บังภาพประกอบทั้งหมด
  * และดูเป็นกล่องข้อความเกมภาพ (visual novel) มากขึ้นแทนแถบเต็มจอแบบเดิม
@@ -734,6 +908,7 @@ function StoryBox({
   nextLabel = NEXT_LABELS.default,
   fadeUp,
   onAdvance,
+  onSkip,
 }: {
   isTyping: boolean;
   displayedText: string;
@@ -742,6 +917,7 @@ function StoryBox({
   nextLabel?: string;
   fadeUp?: boolean;
   onAdvance: () => void;
+  onSkip?: () => void;
 }) {
   return (
     <Box label={label} fadeUp={fadeUp}>
@@ -756,7 +932,8 @@ function StoryBox({
         {displayedText}
         <span className="ml-0.5 inline-block h-[1.1em] w-[2px] align-middle bg-blue-400 animate-blink" />
       </p>
-      <div className="mt-5 flex justify-end">
+      <div className="mt-5 flex justify-end gap-3">
+        {onSkip && <SkipButton onClick={onSkip} />}
         <NextButton onClick={onAdvance} label={nextLabel} />
       </div>
     </Box>
@@ -851,7 +1028,17 @@ export default function MainGamePage() {
     setActionLog(prev => [...prev, entry]);
   }
 
-  const currentBg = getBackground(dayIndex, node);
+  // ── ภาพพื้นหลังตามช่วงเกม
+  //    - ตอนเล่นเนื้อเรื่อง (screen === 'story') ใช้พื้นหลังตามวัน/โหนดปัจจุบัน
+  //    - ตอนคำบรรยายจบเกม (screen === 'final_narration') ใช้ภาพฉากจบ ดี/แย่
+  //      ตามผลเทียบ Hope กับ Fracture (กติกาเดียวกับตอนเลือกข้อความ final_good/final_bad) ──
+  const isEndingScreen = screen === 'final_narration';
+  const showBackgroundImage = screen === 'story' || isEndingScreen;
+  const currentBg = screen === 'story'
+    ? getBackground(dayIndex, node)
+    : hope > fracture
+      ? BG.goodEnding
+      : BG.badEnding;
 
   // ── คำบรรยายเปิดเกม ──
   const [step, setStep] = useState(0);
@@ -991,6 +1178,18 @@ export default function MainGamePage() {
     }
   }
 
+  // ── ปุ่ม "ข้าม" บนหน้าคำบรรยายเปิดเกม (opening_dialog)
+  //    ตามไดอะแกรม (โน้ต "ตรงนี้ถึงตรงนี้มีปุ่ม Skip") ปุ่มข้ามในส่วนคำบรรยายเปิดเกม
+  //    จะหยุดพิมพ์ทันทีและข้ามบทพูดที่เหลือทั้งหมด เข้าสู่วันที่ 1 ทันที ──
+  function handleDialogSkip() {
+    if (dialogTimerRef.current) {
+      clearInterval(dialogTimerRef.current);
+      dialogTimerRef.current = null;
+    }
+    setDialogIsTyping(false);
+    goToDayStart(0);
+  }
+
   function handleStoryAdvance(nextNode: () => void) {
     if (isTyping) {
       if (timerRef.current) {
@@ -1007,6 +1206,17 @@ export default function MainGamePage() {
       return;
     }
 
+    nextNode();
+  }
+
+  // ── ปุ่ม "ข้าม": หยุดพิมพ์ทันที และข้ามไปยังจุดถัดไป (ทางเลือก/โหนดถัดไป)
+  //    โดยไม่สนใจว่าจะพิมพ์ค้างอยู่ หรือยังเหลือ segment อื่นให้อ่านอีกกี่อัน ──
+  function handleStorySkip(nextNode: () => void) {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setIsTyping(false);
     nextNode();
   }
 
@@ -1210,7 +1420,7 @@ export default function MainGamePage() {
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <div className="relative min-h-screen flex flex-col justify-end bg-black overflow-hidden">
-      {screen === 'story' && (
+      {showBackgroundImage && (
         <div
           className="absolute inset-0 bg-cover bg-center transition-[background-image] duration-700 ease-out"
           style={{ backgroundImage: `url(${currentBg})` }}
@@ -1222,7 +1432,7 @@ export default function MainGamePage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
         </div>
       )}
-      {screen !== 'story' && <Stars />}
+      {!showBackgroundImage && <Stars />}
 
       <div className="fixed top-4 right-4 z-50">
         <AudioSettingsButton />
@@ -1230,14 +1440,19 @@ export default function MainGamePage() {
 
       {showScoreHUD && <ScoreHUD hope={hope} fracture={fracture} />}
 
-      {/* ── คำบรรยายเปิดเกม ── */}
+      {/* ── คำบรรยายเปิดเกม ──
+          ตามไดอะแกรม: มีปุ่ม Skip ครอบคลุมตั้งแต่ "คำบรรยาย" (หน้านี้) ไปจนถึง
+          "เนื้อเรื่องก่อนทางเลือก" (beforeChoice1) — กดแล้วข้ามบทพูดเปิดเกมที่เหลือ
+          ทั้งหมดและเข้าสู่วันที่ 1 ทันที (ผู้เล่นจะไปกดข้ามที่ฉาก intro/มินิเกม/afterIntro
+          ต่อเองได้ เพราะแต่ละหน้านั้นมีปุ่มข้ามของตัวเองอยู่แล้ว) ── */}
       {screen === 'opening_dialog' && (
         <Box label="ข้อความ" fadeUp={false}>
           <p className="whitespace-pre-line text-[16px] leading-[1.9] tracking-wide text-slate-100/95 min-h-[3.2em] md:text-[17px]">
             {dialogDisplayedText}
             <span className="ml-0.5 inline-block h-[1.1em] w-[2px] align-middle bg-blue-400 animate-blink" />
           </p>
-          <div className="mt-5 flex justify-end">
+          <div className="mt-5 flex justify-end gap-3">
+            <SkipButton onClick={handleDialogSkip} />
             <NextButton
               onClick={handleDialogNext}
               label={step === DIALOGS.length - 1 && !dialogIsTyping ? NEXT_LABELS.dialogStart : NEXT_LABELS.dialog}
@@ -1256,6 +1471,7 @@ export default function MainGamePage() {
               label={dayConfig.dayLabel}
               fadeUp={true}
               onAdvance={() => handleStoryAdvance(handleIntroNext)}
+              onSkip={() => handleStorySkip(handleIntroNext)}
             />
           )}
 
@@ -1272,6 +1488,7 @@ export default function MainGamePage() {
               displayedText={displayedText}
               segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(() => setNode('beforeChoice1'))}
+              onSkip={() => handleStorySkip(() => setNode('beforeChoice1'))}
             />
           )}
 
@@ -1282,6 +1499,7 @@ export default function MainGamePage() {
               displayedText={displayedText}
               segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(() => setNode('choice1'))}
+              onSkip={() => handleStorySkip(() => setNode('choice1'))}
             />
           )}
 
@@ -1291,6 +1509,7 @@ export default function MainGamePage() {
               displayedText={displayedText}
               segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(() => setNode('choice1'))}
+              onSkip={() => handleStorySkip(() => setNode('choice1'))}
             />
           )}
 
@@ -1310,6 +1529,7 @@ export default function MainGamePage() {
               displayedText={displayedText}
               segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(handleChoice1OptAContinue)}
+              onSkip={() => handleStorySkip(handleChoice1OptAContinue)}
             />
           )}
 
@@ -1321,6 +1541,7 @@ export default function MainGamePage() {
               displayedText={displayedText}
               segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(handleChoice1OptBAdvance)}
+              onSkip={() => handleStorySkip(handleChoice1OptBAdvance)}
             />
           )}
 
@@ -1340,6 +1561,7 @@ export default function MainGamePage() {
               displayedText={displayedText}
               segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(handleConvergeAdvance)}
+              onSkip={() => handleStorySkip(handleConvergeAdvance)}
             />
           )}
 
@@ -1371,6 +1593,7 @@ export default function MainGamePage() {
               displayedText={displayedText}
               segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(handleChoice1AfterNameContinue)}
+              onSkip={() => handleStorySkip(handleChoice1AfterNameContinue)}
             />
           )}
 
@@ -1382,6 +1605,7 @@ export default function MainGamePage() {
               displayedText={displayedText}
               segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(() => setNode('choice2'))}
+              onSkip={() => handleStorySkip(() => setNode('choice2'))}
             />
           )}
 
@@ -1401,6 +1625,7 @@ export default function MainGamePage() {
               displayedText={displayedText}
               segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(handleChoice2OptAContinue)}
+              onSkip={() => handleStorySkip(handleChoice2OptAContinue)}
             />
           )}
 
@@ -1410,6 +1635,7 @@ export default function MainGamePage() {
               displayedText={displayedText}
               segmentIndex={segmentIndex}
               onAdvance={() => handleStoryAdvance(handleChoice2OptBFinish)}
+              onSkip={() => handleStorySkip(handleChoice2OptBFinish)}
             />
           )}
 
@@ -1420,6 +1646,7 @@ export default function MainGamePage() {
               segmentIndex={segmentIndex}
               label="ก่อนจบวัน"
               onAdvance={() => handleStoryAdvance(handlePreEndingAdvance)}
+              onSkip={() => handleStorySkip(handlePreEndingAdvance)}
             />
           )}
 
@@ -1448,6 +1675,7 @@ export default function MainGamePage() {
           label="จบเกม"
           nextLabel={NEXT_LABELS.final}
           onAdvance={() => handleStoryAdvance(() => setScreen('recap'))}
+          onSkip={() => handleStorySkip(() => setScreen('recap'))}
         />
       )}
 
