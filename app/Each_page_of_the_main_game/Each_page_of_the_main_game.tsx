@@ -790,7 +790,11 @@ type StoryNode =
 
 type MiniGameSource = 'intro' | 'choice1' | 'choice2';
 
-type Screen = 'opening_dialog' | 'story' | 'final_narration' | 'recap';
+// ── ตามไดอะแกรม: หลัง "คำนวนค่า Hope และ Fracture" จะแยกเป็นโหนด "Good Ending" /
+//    "Bad Ending" (แสดงภาพฉากจบ) ก่อน แล้วจึงต่อด้วย "คำบรรณยาย" (final_narration)
+//    และ "Recap" ตามลำดับ — จึงแยก 'ending_reveal' เป็นสกรีนของตัวเองแทนที่จะรวม
+//    กับ final_narration ไปเลยเหมือนเดิม ──
+type Screen = 'opening_dialog' | 'story' | 'ending_reveal' | 'final_narration' | 'recap';
 
 function ScoreHUD({ hope, fracture }: { hope: number; fracture: number }) {
   return (
@@ -1030,13 +1034,19 @@ export default function MainGamePage() {
 
   // ── ภาพพื้นหลังตามช่วงเกม
   //    - ตอนเล่นเนื้อเรื่อง (screen === 'story') ใช้พื้นหลังตามวัน/โหนดปัจจุบัน
-  //    - ตอนคำบรรยายจบเกม (screen === 'final_narration') ใช้ภาพฉากจบ ดี/แย่
-  //      ตามผลเทียบ Hope กับ Fracture (กติกาเดียวกับตอนเลือกข้อความ final_good/final_bad) ──
-  const isEndingScreen = screen === 'final_narration';
+  //    - ตอนคำบรรยายจบเกม + หน้าสรุปผล (screen === 'final_narration' หรือ 'recap')
+  //      ใช้ภาพฉากจบ ดี/แย่ ตามผลเทียบ Hope กับ Fracture
+  //      ── ตามไดอะแกรม โหนด "คำนวนค่า Hope และ Fracture" จะแยกเป็น 2 เส้นทาง:
+  //         "เมื่อมีค่า Hope มากกว่า"    -> Good Ending -> ใช้ภาพ "ฉากจบแบบดี (Good Ending).jpg"
+  //         "เมื่อมีค่า Fracture มากกว่า" -> Bad Ending  -> ใช้ภาพ "ฉากจบแบบแย่ (Bad Ending).jpg"
+  //      จากนั้นทั้งสองเส้นทางจะไปที่ "คำบรรณยาย" (final_narration) แล้วต่อด้วย "Recap"
+  //      ภาพฉากจบจึงต้องค้างอยู่เป็นพื้นหลังตลอดทั้งสองหน้าจอนี้ ──
+  const isEndingScreen = screen === 'ending_reveal' || screen === 'final_narration' || screen === 'recap';
+  const isGoodEnding = hope > fracture;
   const showBackgroundImage = screen === 'story' || isEndingScreen;
   const currentBg = screen === 'story'
     ? getBackground(dayIndex, node)
-    : hope > fracture
+    : isGoodEnding
       ? BG.goodEnding
       : BG.badEnding;
 
@@ -1100,7 +1110,7 @@ export default function MainGamePage() {
         text = TEXT[`day${dayIndex}_${suffix}`];
       }
     } else if (screen === 'final_narration') {
-      if (hope > fracture) {
+      if (isGoodEnding) {
         text = formatStoryText(TEXT.final_good, {
           playerName: playerName || 'พายุลูกนี้',
         });
@@ -1371,8 +1381,15 @@ export default function MainGamePage() {
     if (dayIndex < DAY_CONFIGS.length - 1) {
       setNode('dayEnd');
     } else {
-      setScreen('final_narration');
+      // ตามไดอะแกรม: หลัง "เนื้อเรื่องก่อนจบเกม" ของวันสุดท้าย จะไปที่โหนด
+      // "คำนวนค่า Hope และ Fracture" แล้วแยกเข้า Good Ending / Bad Ending ก่อน
+      // (แสดงภาพฉากจบเดี่ยวๆ) จากนั้นผู้เล่นกดต่อไปจึงเข้าสู่คำบรรณยาย
+      setScreen('ending_reveal');
     }
+  }
+
+  function handleEndingRevealNext() {
+    setScreen('final_narration');
   }
 
   function handleDayEndNext() {
@@ -1423,13 +1440,21 @@ export default function MainGamePage() {
       {showBackgroundImage && (
         <div
           className="absolute inset-0 bg-cover bg-center transition-[background-image] duration-700 ease-out"
-          style={{ backgroundImage: `url(${currentBg})` }}
+          style={{ backgroundImage: `url("${currentBg}")` }}
         >
           {/* โทนมืดบางๆ ทั้งภาพ เพื่อให้อารมณ์ฉากนุ่มลง แต่ยังเห็นภาพประกอบชัด */}
           <div className="absolute inset-0 bg-black/20" />
           {/* ไล่เฉดมืดเข้มขึ้นเฉพาะโซนล่างจอ (จุดที่มีกล่องข้อความ) เพื่อให้อ่านง่าย
-              โดยไม่ต้องบังภาพประกอบทั้งจอเหมือนเดิม */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+              โดยไม่ต้องบังภาพประกอบทั้งจอเหมือนเดิม
+              ── หน้า Recap ใช้เฉดที่เข้มขึ้นอีกนิด เพราะมีข้อความ/รายการค่อนข้างเยอะ ── */}
+          <div
+            className={
+              'absolute inset-0 bg-gradient-to-t ' +
+              (screen === 'recap'
+                ? 'from-black/90 via-black/50 to-black/10'
+                : 'from-black/85 via-black/25 to-transparent')
+            }
+          />
         </div>
       )}
       {!showBackgroundImage && <Stars />}
@@ -1666,13 +1691,37 @@ export default function MainGamePage() {
         </>
       )}
 
-      {/* ── คำบรรยายจบเกม ── */}
+      {/* ── Good Ending / Bad Ending ──
+          ตามไดอะแกรม: โหนดนี้แยกออกมาต่างหากจาก "คำบรรณยาย" — แสดงภาพฉากจบ
+          ("ฉากจบแบบดี (Good Ending).jpg" หรือ "ฉากจบแบบแย่ (Bad Ending).jpg")
+          พร้อมชื่อฉากจบให้ผู้เล่นได้เห็นก่อน แล้วค่อยกดต่อไปเข้าคำบรรณยาย ── */}
+      {screen === 'ending_reveal' && (
+        <Box label={isGoodEnding ? 'Good Ending' : 'Bad Ending'}>
+          <p className="text-[17px] leading-relaxed text-slate-100/95">
+            {isGoodEnding
+              ? 'เส้นทางที่คุณเลือกมาตลอดทั้ง 3 วัน นำไปสู่ฉากจบแบบดี'
+              : 'เส้นทางที่คุณเลือกมาตลอดทั้ง 3 วัน นำไปสู่ฉากจบแบบแย่'}
+          </p>
+          <div className="mt-3 flex items-center gap-4 text-sm">
+            <span className="text-cyan-300">✨ Hope: {hope}</span>
+            <span className="text-red-300">💔 Fracture: {fracture}</span>
+          </div>
+          <div className="mt-5 flex justify-end">
+            <NextButton onClick={handleEndingRevealNext} label={NEXT_LABELS.final} />
+          </div>
+        </Box>
+      )}
+
+      {/* ── คำบรรยายจบเกม ──
+          ตามไดอะแกรม: หลัง Good/Bad Ending แล้วเข้า "คำบรรณยาย"
+          จอนี้จึงใช้ภาพพื้นหลังฉากจบ (currentBg) ที่คำนวณจาก isGoodEnding ด้านบนแล้ว
+          (พื้นหลังต่อเนื่องมาจากหน้า ending_reveal) ── */}
       {screen === 'final_narration' && (
         <StoryBox
           isTyping={isTyping}
           displayedText={displayedText}
           segmentIndex={segmentIndex}
-          label="จบเกม"
+          label={isGoodEnding ? 'Good Ending' : 'Bad Ending'}
           nextLabel={NEXT_LABELS.final}
           onAdvance={() => handleStoryAdvance(() => setScreen('recap'))}
           onSkip={() => handleStorySkip(() => setScreen('recap'))}
@@ -1681,9 +1730,10 @@ export default function MainGamePage() {
 
       {/* ── สรุปผล ──
           ตามไดอะแกรม: "Recap การกระทำของผู้เล่นตลอดทั้งเกมว่าทำอะไรไปบ้าง"
-          จึงโชว์คะแนนรวม + รายการทางเลือกที่ผู้เล่นกดไปตลอดทั้ง 3 วัน ── */}
+          ต่อจาก "คำบรรณยาย" ของฉากจบโดยตรง จึงโชว์คะแนนรวม + รายการทางเลือกที่ผู้เล่น
+          กดไปตลอดทั้ง 3 วัน พร้อมภาพฉากจบดี/แย่เดิมเป็นพื้นหลัง (ต่อเนื่องจากหน้าก่อน) ── */}
       {screen === 'recap' && (
-        <Box label="สรุปผล">
+        <Box label={isGoodEnding ? 'สรุปผล · Good Ending' : 'สรุปผล · Bad Ending'}>
           <p className="text-lg text-yellow-300">
             {playerName ? `${playerName} ` : ''}ผ่านการผจญภัยมาได้แล้ว
           </p>
